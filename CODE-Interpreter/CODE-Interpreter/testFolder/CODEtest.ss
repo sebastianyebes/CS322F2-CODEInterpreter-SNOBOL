@@ -1,0 +1,3 @@
+﻿BEGIN CODE
+    INT x, y = 123
+END CODE
