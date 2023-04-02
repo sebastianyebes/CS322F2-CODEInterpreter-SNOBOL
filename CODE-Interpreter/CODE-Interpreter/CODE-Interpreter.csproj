@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,6 +6,7 @@
     <RootNamespace>CODE_Interpreter</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,12 @@
 
   <ItemGroup>
     <Content Include="Grammar.g4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="testFolder\CODEtest.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
