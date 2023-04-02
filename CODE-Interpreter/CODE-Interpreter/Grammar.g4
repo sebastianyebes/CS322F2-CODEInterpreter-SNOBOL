@@ -35,12 +35,13 @@ declaratorlist: declarator | declarator ',' declaratorlist;
 constant: INTEGERVAL | FLOATVAL | CHARVAL | BOOLVAL;
 
 value:
-	constant
-	| value compareOp value
-	| value boolOp value
-	| value multOp value
-	| value addOp value;
-
+	constant                    #constantExpression
+	| VARIABLENAME              #variablenameExpression
+	| value compareOp value     #comparisonExpression
+	| value boolOp value        #booleanExpression
+	| value multOp value        #multiplicativeExpression
+	| value addOp value         #additiveExpression
+    ;
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
