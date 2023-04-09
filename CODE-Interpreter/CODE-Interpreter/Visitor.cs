@@ -1,11 +1,18 @@
-﻿namespace CODE_Interpreter;
+﻿using Antlr4.Runtime.Tree;
+using static Microsoft.VisualBasic.Strings;
+
+namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
 {
-    public Dictionary<string, object?> Variables { get; } = new();
+    public Dictionary<string, object?> Functions { get; } = new();
+    public Dictionary<string, object?> CharVar { get; } = new();
+    public Dictionary<string, object?> IntVar { get; } = new();
+    public Dictionary<string, object?> FloatVar { get; } = new();
+    public Dictionary<string, object?> BoolVar { get; } = new();
     
     public Visitor()
     {
-        Variables["DISPLAY"] = new Func<object?[], object?>(Display);
+        Functions["DISPLAY"] = new Func<object?[], object?>(Display);
     }
 
     private object? Display(object?[] args)
@@ -24,12 +31,12 @@ public class Visitor : GrammarBaseVisitor<object?>
         var args = context.value().Select(Visit).ToArray();
         //var args = context.argList()?.value()?.Select(x => Visit(x)).ToArray();
 
-        if (!Variables.ContainsKey(name))
+        if (!Functions.ContainsKey(name))
         {
             throw new Exception($"Function {name} is not defined");
         }
 
-        if (Variables[name] is not Func<object?[], object?> func)
+        if (Functions[name] is not Func<object?[], object?> func)
         {
             throw new Exception($"Variable {name} is not a function");
         }
@@ -40,46 +47,85 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitAssignment(GrammarParser.AssignmentContext context)
     {
         var varName = context.VARIABLENAME().GetText();
-
         var value = Visit(context.value());
 
-        Variables[varName] = value;
-
-        return null;
-    }
-
-    public override object? VisitVariablenameExpression(GrammarParser.VariablenameExpressionContext context)
-    {
-        var varName = context.VARIABLENAME().GetText();
-
-        if (!Variables.ContainsKey(varName))
+        if (CharVar.ContainsKey(varName))
         {
-            throw new Exception($"Variable {varName} is not defined");
+            if (value is string | value is char)
+            {
+                CharVar[varName] = value;
+            }
+            else
+            {
+                throw new Exception("Value is not char");
+            }
+        }
+        else if (IntVar.ContainsKey(varName))
+        {
+            if (value is int)
+            {
+                IntVar[varName] = value;
+            }
+            else
+            {
+                throw new NotImplementedException("Value is not int");
+            }
+        }
+        else if (FloatVar.ContainsKey(varName))
+        {
+            if (value is float)
+            {
+                FloatVar[varName] = value;
+            }
+            else
+            {
+                throw new NotImplementedException("Value is not float");
+            }
+        }
+        else if (BoolVar.ContainsKey(varName))
+        {
+            if (value is bool)
+            {
+                BoolVar[varName] = value;
+            }
+            else
+            {
+                throw new NotImplementedException("Value is not bool");
+            }
         }
 
-        return Variables[varName];
+        return null;
     }
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
-        var varName = context.DATATYPE().GetText();
+        var varDatatype = context.DATATYPE().GetText();
+        var varName = context.declaratorlist().declarator().VARIABLENAME().GetText();
 
-        var declaratorlist = context.declaratorlist();
-
-        Variables[varName] = declaratorlist;
-
-        return null;
-    }
-    public override object? VisitDeclarator(GrammarParser.DeclaratorContext context)
-    {
-        var varName = context.VARIABLENAME().GetText();
-        
-        if (Variables.ContainsValue(varName))
+        switch (varDatatype)
         {
-            var value = Visit(context.value());
-            
-            Variables[varName] = value;
+            case "CHAR":
+                CharVar[varName] = ' ';
+                break;
+            case "INT":
+                IntVar[varName] = 0;
+                break;
+            case "FLOAT":
+                FloatVar[varName] = 0.0;
+                break;
+            case "BOOL":
+                BoolVar[varName] = null;
+                break;
+            default:
+                throw new NotImplementedException($"Datatype {varDatatype} is not defined");
         }
 
+            return null;
+    }
+
+    public override object? VisitDeclaratorlist(GrammarParser.DeclaratorlistContext context)
+    {
+        var varName = context.declarator().VARIABLENAME().GetText();
+        var value = Visit(context.declarator().value());
         return null;
     }
 
@@ -105,6 +151,21 @@ public class Visitor : GrammarBaseVisitor<object?>
         return null;
     }
 
+    public override object? VisitConcatinateExpression(GrammarParser.ConcatinateExpressionContext context)
+    {
+        var left = Visit(context.value(0));
+        var right = Visit(context.value(1));
+
+        var op = context.concOp().GetText();
+        
+        if (left is string && right is string)
+        {
+            return $"{left}{right}";
+        }
+        
+        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
     {
         var left = Visit(context.value(0));
@@ -121,7 +182,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     }
 
     private object? Add(object? left, object? right)
-    {
+    {   
         if (left is int l && right is int r)
         {
             return l + r;
@@ -130,21 +191,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (left is float lf && right is float rf)
         {
             return lf + rf;
-        }
-
-        if (left is int lInt && right is float rFloat)
-        {
-            return lInt + rFloat;
-        }
-        
-        if (left is float lFloat && right is int rInt)
-        {
-            return lFloat + rInt;
-        }
-
-        if (left is string)
-        {
-            return $"{left}{right}";
         }
 
         if (left is string || right is string)

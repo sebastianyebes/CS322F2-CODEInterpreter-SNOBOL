@@ -9,7 +9,7 @@ statements: statement+;
 //
 
 // Exec (x = 123) , vardec (INT x, y =123)
-statement: (assignment | vardec | functionCall) NEWLINE+;
+statement: (vardec | assignment | functionCall) NEWLINE+;
 //
 
 // INT x or INT x, y
@@ -21,8 +21,8 @@ assignment: VARIABLENAME '=' (value | assignment);
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
-
 functionCall: VARIABLENAME '(' (value (',' value)*)? ')';
+//
 
 // x or y = 123
 declarator: VARIABLENAME | VARIABLENAME '=' value; 
@@ -32,26 +32,28 @@ declarator: VARIABLENAME | VARIABLENAME '=' value;
 declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
-constant: INTEGERVAL | FLOATVAL | CHARVAL | BOOLVAL;
+constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 
 value:
-	constant                    #constantExpression
-	| VARIABLENAME              #variablenameExpression
+    constant                   #constantExpression
+    | VARIABLENAME              #variablenameExpression
 	| value compareOp value     #comparisonExpression
-	| value boolOp value        #booleanExpression
+	| value logicalOp value     #logicalOpExpression
 	| value multOp value        #multiplicativeExpression
 	| value addOp value         #additiveExpression
+	| value concOp value        #concatinateExpression
     ;
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
-boolOp: 'AND' | 'OR' | 'NOT';
+logicalOp: 'AND' | 'OR' | 'NOT';
+concOp: '&';
 
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
 BOOLVAL: '"TRUE"' | '"FALSE"';
-CHARVAL: '\'' [a-zA-Z] '\'';
+CHARVAL: '\'' ([a-zA-Z]|[0-9]) '\'';
 INTEGERVAL: ('-')? [1-9]+;
-FLOATVAL: ('-')? [1-9]+ '.' ('-')? [0-9]+;
+FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;
 STRINGVAL: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WS: [ \t\r]+ -> skip; // Skips whitespaces
