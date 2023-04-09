@@ -1,3 +1,3 @@
 ﻿BEGIN CODE
-    INT x, y = 123
+    CHAR y, x = 123
 END CODE

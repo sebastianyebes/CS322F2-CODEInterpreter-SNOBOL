@@ -1,7 +1,42 @@
 ﻿namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
 {
-    private Dictionary<string, object?> Variables { get; } = new();
+    public Dictionary<string, object?> Variables { get; } = new();
+    
+    public Visitor()
+    {
+        Variables["DISPLAY"] = new Func<object?[], object?>(Display);
+    }
+
+    private object? Display(object?[] args)
+    {
+        foreach (var arg in args)
+        {
+            Console.WriteLine(arg);
+        }
+
+        return null;
+    }
+
+    public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
+    {
+        var name = context.VARIABLENAME().GetText();
+        var args = context.value().Select(Visit).ToArray();
+        //var args = context.argList()?.value()?.Select(x => Visit(x)).ToArray();
+
+        if (!Variables.ContainsKey(name))
+        {
+            throw new Exception($"Function {name} is not defined");
+        }
+
+        if (Variables[name] is not Func<object?[], object?> func)
+        {
+            throw new Exception($"Variable {name} is not a function");
+        }
+
+        return func(args);
+    }
+
     public override object? VisitAssignment(GrammarParser.AssignmentContext context)
     {
         var varName = context.VARIABLENAME().GetText();
@@ -23,6 +58,29 @@ public class Visitor : GrammarBaseVisitor<object?>
         }
 
         return Variables[varName];
+    }
+    public override object? VisitVardec(GrammarParser.VardecContext context)
+    {
+        var varName = context.DATATYPE().GetText();
+
+        var declaratorlist = context.declaratorlist();
+
+        Variables[varName] = declaratorlist;
+
+        return null;
+    }
+    public override object? VisitDeclarator(GrammarParser.DeclaratorContext context)
+    {
+        var varName = context.VARIABLENAME().GetText();
+        
+        if (Variables.ContainsValue(varName))
+        {
+            var value = Visit(context.value());
+            
+            Variables[varName] = value;
+        }
+
+        return null;
     }
 
     public override object? VisitConstant(GrammarParser.ConstantContext context)

@@ -9,20 +9,20 @@ statements: statement+;
 //
 
 // Exec (x = 123) , vardec (INT x, y =123)
-statement: (exec | vardec) NEWLINE+;
+statement: (assignment | vardec | functionCall) NEWLINE+;
 //
 
 // INT x or INT x, y
 vardec: DATATYPE declaratorlist;
 //
 
-// refer to assignment line
-exec: assignment;
-//
-
 // x = 123 or x = y = 123
 assignment: VARIABLENAME '=' (value | assignment);
 //
+
+//functionCall: VARIABLENAME ': ' STRINGVAL;
+
+functionCall: VARIABLENAME '(' (value (',' value)*)? ')';
 
 // x or y = 123
 declarator: VARIABLENAME | VARIABLENAME '=' value; 
@@ -52,6 +52,7 @@ BOOLVAL: '"TRUE"' | '"FALSE"';
 CHARVAL: '\'' [a-zA-Z] '\'';
 INTEGERVAL: ('-')? [1-9]+;
 FLOATVAL: ('-')? [1-9]+ '.' ('-')? [0-9]+;
+STRINGVAL: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WS: [ \t\r]+ -> skip; // Skips whitespaces
 NEWLINE: [\r\n]+;
