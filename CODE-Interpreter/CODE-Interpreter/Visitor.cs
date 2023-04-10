@@ -1,4 +1,6 @@
-﻿namespace CODE_Interpreter;
+﻿using Microsoft.VisualBasic.CompilerServices;
+
+namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
 {
     public Dictionary<string, object?> Functions { get; } = new();
@@ -81,7 +83,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         }
         else if (BoolVar.ContainsKey(varName))
         {
-            if (value is bool)
+            if (value is "TRUE" || value is "FALSE")
             {
                 BoolVar[varName] = value;
             }
@@ -162,9 +164,9 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return float.Parse(context.FLOATVAL().GetText());
         }
-        if (context.CHARVAL() != null)
+        if (context.CHARVAL() is {} c)
         {
-            return context.CHARVAL().GetText();
+            return c.GetText()[1..^1];
         }
         if (context.BOOLVAL() != null)
         {
@@ -178,7 +180,54 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         return null;
     }
+
+    public override object? VisitConcatenateExpression(GrammarParser.ConcatenateExpressionContext context)
+    {
+        var left = Visit(context.value(0))?.ToString();
+        var right = Visit(context.value(1))?.ToString();
+
+        var op = context.concOp().GetText();
+
+        if(op == "&")
+        {
+            return left + right;
+        }
+
+        throw new Exception("Error hehe");
+    }
     
+    public override object? VisitAssignExpression(GrammarParser.AssignExpressionContext context)
+    {
+        var leftName = context.value(0).GetText();
+        var rightName = context.value(1).GetText();
+
+        var leftNum = Visit(context.value(0));
+        var rightNum = Visit(context.value(1));
+        
+
+        var op = context.assgnOp().GetText();
+
+        if (leftNum is int l && rightNum is int r)
+        {
+            
+            if (IntVar.ContainsKey(leftName))
+            {
+                if (!IntVar.ContainsKey(rightName))
+                {
+                    IntVar[leftName] = context.value();
+                }
+                IntVar[leftName] = rightNum;
+
+            }
+            
+            if (op == "=")
+            {
+                return IntVar[leftName] = rightNum;
+            }
+        }
+        
+        throw new Exception("Error in assigning hehe");
+    }
 
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
     {
@@ -205,11 +254,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (left is float lf && right is float rf)
         {
             return lf + rf;
-        }
-
-        if (left is string || right is string)
-        {
-            return $"{left}{right}";
         }
 
         throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");

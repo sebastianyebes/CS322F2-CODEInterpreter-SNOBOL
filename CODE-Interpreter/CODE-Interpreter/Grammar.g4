@@ -18,6 +18,9 @@ vardec: DATATYPE declaratorlist;
 
 // x = 123 or x = y = 123
 assignment: VARIABLENAME '=' (value | assignment);
+//assignment: assignmentList '=' value;
+//assignmentList: VARIABLENAME (assignmentOp VARIABLENAME)*;
+//assignmentOp: '=';
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
@@ -42,16 +45,18 @@ value:
 	| value logicalOp value     #logicalOpExpression
 	| value multOp value        #multiplicativeExpression
 	| value addOp value         #additiveExpression
-	| value concOp value        #concatinateExpression
+	| value concOp value        #concatenateExpression
+	| value assgnOp value       #assignExpression
     ;
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
 logicalOp: 'AND' | 'OR' | 'NOT';
 concOp: '&';
+assgnOp: '=';
 
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
-BOOLVAL: '"TRUE"' | '"FALSE"';
+BOOLVAL: 'TRUE' | 'FALSE';
 CHARVAL: '\'' ([a-zA-Z]|[0-9]) '\'';
 INTEGERVAL: ('-')? [1-9]+;
 FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;

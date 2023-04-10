@@ -1,9 +1,7 @@
 ﻿BEGIN CODE
-    INT x
     INT y
+    INT x
     INT z
-    x = 12
-    y = 2
-    z = x + y
+    z = x = 1
     DISPLAY: z
 END CODE
