@@ -261,18 +261,18 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         if (op == "&")
         {
-            if (left != null && right != null)
+            if (!string.IsNullOrEmpty(left) && !string.IsNullOrEmpty(right))
             {
                 return left + right;
             }
             else
             {
-                throw new Exception("Invalid operands for concatenation");
+                throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
             }
         }
 
-        return null;
-        
+        throw new Exception($"Invalid concatenation operator: '{op}'");
+
     }
     
     public override object? VisitAssignExpression(GrammarParser.AssignExpressionContext context)
@@ -305,7 +305,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
         }
         
-        throw new Exception("Error in assigning value");
+        throw new Exception($"Error assigning value: {leftName} = {rightName}");
     }
 
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
