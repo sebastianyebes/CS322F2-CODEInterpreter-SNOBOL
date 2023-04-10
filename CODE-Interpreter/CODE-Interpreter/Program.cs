@@ -7,7 +7,7 @@ var contents = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "t
 
 if (contents.Substring(0, 10) != "BEGIN CODE" || contents.Substring(contents.Length - 8, 8) != "END CODE")
 {
-    throw new Exception("No BEGIN CODE or END CODE");
+    throw new Exception("Must start with 'BEGIN CODE' and end with 'END CODE'");
 }
 
 var inputStream = new AntlrInputStream(contents);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
+using System.Linq.Expressions;
 
 namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
@@ -48,6 +49,8 @@ public class Visitor : GrammarBaseVisitor<object?>
         var varName = context.VARIABLENAME().GetText();
         var value = Visit(context.value());
 
+        
+        
         if (CharVar.ContainsKey(varName))
         {
             if (value is string | value is char)
@@ -56,7 +59,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new Exception("Value is not char");
+                throw new Exception($"Invalid assignment for variable {varName}: expected a character");
             }
         }
         else if (IntVar.ContainsKey(varName))
@@ -67,7 +70,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new NotImplementedException("Value is not int");
+                throw new Exception($"Invalid assignment for variable {varName} : expected a integer");
             }
         }
         else if (FloatVar.ContainsKey(varName))
@@ -78,7 +81,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new NotImplementedException("Value is not float");
+                throw new Exception($"Invalid assignment for variable {varName}: expected a floating point");
             }
         }
         else if (BoolVar.ContainsKey(varName))
@@ -89,40 +92,14 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new NotImplementedException("Value is not bool");
+                throw new Exception($"Invalid assignment for variable {varName}: expected a boolean");
             }
         }
+        
 
         return null;
     }
     
-/*
-    public override object? VisitVardec(GrammarParser.VardecContext context)
-    {
-        var varDatatype = context.DATATYPE().GetText();
-        var varName = context.declaratorlist().declarator().VARIABLENAME().GetText();
-
-        switch (varDatatype)
-        {
-            case "CHAR":
-                CharVar[varName] = ' ';
-                break;
-            case "INT":
-                IntVar[varName] = 0;
-                break;
-            case "FLOAT":
-                FloatVar[varName] = 0.0;
-                break;
-            case "BOOL":
-                BoolVar[varName] = null;
-                break;
-            default:
-                throw new NotImplementedException($"Datatype {varDatatype} is not defined");
-        }
-
-            return null;
-    }
-    */
 
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {   
@@ -149,7 +126,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                         }
                         catch(Exception e)
                         {
-                            throw new Exception("Value must be a Character");
+                            throw new Exception($"Invalid value for variable {varName}: expected a character");
                         }
                          
                         break;
@@ -160,7 +137,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                         }
                         catch (Exception e)
                         {
-                            throw new Exception("Value must be an Integer");
+                            throw new Exception($"Invalid value for variable {varName} : expected a integer");
                         }
                         break;
                     case "FLOAT":
@@ -170,7 +147,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                         }
                         catch (Exception e)
                         {
-                            throw new Exception("Value must be Float");
+                            throw new Exception($"Invalid value for variable {varName}: expected a floating point");
                         }
                         
                         break;
@@ -181,7 +158,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                         }
                         catch (Exception e)
                         {
-                            throw new Exception("Value must be a Boolean");
+                            throw new Exception($"Invalid value for variable {varName}: expected a boolean");
                         }
                         
                         break;
@@ -281,12 +258,21 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.concOp().GetText();
 
-        if(op == "&")
+        
+        if (op == "&")
         {
-            return left + right;
+            if (left != null && right != null)
+            {
+                return left + right;
+            }
+            else
+            {
+                throw new Exception("Invalid operands for concatenation");
+            }
         }
 
-        throw new Exception("Error hehe");
+        return null;
+        
     }
     
     public override object? VisitAssignExpression(GrammarParser.AssignExpressionContext context)
@@ -319,7 +305,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
         }
         
-        throw new Exception("Error in assigning hehe");
+        throw new Exception("Error in assigning value");
     }
 
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
