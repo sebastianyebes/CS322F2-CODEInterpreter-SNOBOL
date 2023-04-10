@@ -42,7 +42,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         return func(args);
     }
-
+    
     public override object? VisitAssignment(GrammarParser.AssignmentContext context)
     {
         var varName = context.VARIABLENAME().GetText();
@@ -95,6 +95,8 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         return null;
     }
+    
+/*
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
         var varDatatype = context.DATATYPE().GetText();
@@ -119,6 +121,97 @@ public class Visitor : GrammarBaseVisitor<object?>
         }
 
             return null;
+    }
+    */
+
+    public override object? VisitVardec(GrammarParser.VardecContext context)
+    {   
+        
+        var varDatatype = context.DATATYPE().GetText();
+        var varName = context.declaratorlist().declarator().VARIABLENAME().GetText();
+        if (varDatatype == "")
+        {
+            throw new Exception($"{varName} not declared");
+        }
+        else
+        {
+            
+            var valueText = context.declaratorlist().declarator().value();
+            if (valueText != null)
+            {
+                var value = context.declaratorlist().declarator().value().GetText();
+                switch (varDatatype)
+                {
+                    case "CHAR":
+                        try
+                        {
+                            CharVar[varName] = value[1..^1];
+                        }
+                        catch(Exception e)
+                        {
+                            throw new Exception("Value must be a Character");
+                        }
+                         
+                        break;
+                    case "INT":
+                        try
+                        {
+                            IntVar[varName] = Convert.ToInt32(value);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception("Value must be an Integer");
+                        }
+                        break;
+                    case "FLOAT":
+                        try
+                        {
+                            FloatVar[varName] = Convert.ToDouble(value);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception("Value must be Float");
+                        }
+                        
+                        break;
+                    case "BOOL":
+                        try
+                        {
+                            BoolVar[varName] = Convert.ToBoolean(value);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception("Value must be a Boolean");
+                        }
+                        
+                        break;
+                    default:
+                        throw new Exception($"Data Type {varDatatype} is not defined");
+                }
+            }
+            else
+            {
+                switch (varDatatype)
+                {
+                    case "CHAR":
+                        CharVar[varName] = ' '; 
+                        break;
+                    case "INT":
+                        IntVar[varName] = 0;
+                        break;
+                    case "FLOAT":
+                        FloatVar[varName] = 0.0;
+                        break;
+                    case "BOOL":
+                        BoolVar[varName] = null;
+                        break;
+                    default:
+                        throw new Exception($"Data Type {varDatatype} is not defined");
+                }
+            }
+
+        }
+        return null;
     }
 
     public override object? VisitDeclaratorlist(GrammarParser.DeclaratorlistContext context)
