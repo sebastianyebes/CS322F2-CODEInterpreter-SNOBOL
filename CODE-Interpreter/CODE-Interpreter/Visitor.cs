@@ -1,7 +1,4 @@
-﻿using Antlr4.Runtime.Tree;
-using static Microsoft.VisualBasic.Strings;
-
-namespace CODE_Interpreter;
+﻿namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
 {
     public Dictionary<string, object?> Functions { get; } = new();
@@ -24,10 +21,10 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         return null;
     }
-
+    
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
-        var name = context.VARIABLENAME().GetText();
+        var name = context.FUNCTIONNAME().GetText();
         var args = context.value().Select(Visit).ToArray();
         //var args = context.argList()?.value()?.Select(x => Visit(x)).ToArray();
 
@@ -40,7 +37,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             throw new Exception($"Variable {name} is not a function");
         }
-
+        
         return func(args);
     }
 
@@ -126,7 +123,33 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         var varName = context.declarator().VARIABLENAME().GetText();
         var value = Visit(context.declarator().value());
+
+        Functions[varName] = value;
         return null;
+    }
+
+    public override object? VisitVariablenameExpression(GrammarParser.VariablenameExpressionContext context)
+    {
+        var varName = context.VARIABLENAME().GetText();
+
+        if (CharVar.ContainsKey(varName))
+        {
+            return CharVar[varName];
+        }
+        if (IntVar.ContainsKey(varName))
+        {
+            return IntVar[varName];
+        }
+        if (FloatVar.ContainsKey(varName))
+        {
+            return FloatVar[varName];
+        }
+        if (BoolVar.ContainsKey(varName))
+        {
+            return BoolVar[varName];
+        }
+
+        throw new Exception($"Variable {varName} is not defined");
     }
 
     public override object? VisitConstant(GrammarParser.ConstantContext context)
@@ -147,24 +170,15 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return context.BOOLVAL().GetText() == "TRUE";
         }
+
+        if (context.STRINGVAL() is { } s)
+        {
+            return s.GetText()[1..^1];
+        }
         
         return null;
     }
-
-    public override object? VisitConcatinateExpression(GrammarParser.ConcatinateExpressionContext context)
-    {
-        var left = Visit(context.value(0));
-        var right = Visit(context.value(1));
-
-        var op = context.concOp().GetText();
-        
-        if (left is string && right is string)
-        {
-            return $"{left}{right}";
-        }
-        
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
-    }
+    
 
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
     {

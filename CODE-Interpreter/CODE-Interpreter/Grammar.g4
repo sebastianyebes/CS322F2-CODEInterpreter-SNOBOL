@@ -21,7 +21,7 @@ assignment: VARIABLENAME '=' (value | assignment);
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
-functionCall: VARIABLENAME '(' (value (',' value)*)? ')';
+functionCall: FUNCTIONNAME ': ' (value (',' value)*)?;
 //
 
 // x or y = 123
@@ -32,11 +32,12 @@ declarator: VARIABLENAME | VARIABLENAME '=' value;
 declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
-constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
+constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL | STRINGVAL;
 
-value:
-    constant                   #constantExpression
+value:                          
+    constant                    #constantExpression
     | VARIABLENAME              #variablenameExpression
+    | functionCall              #functionCallExpression
 	| value compareOp value     #comparisonExpression
 	| value logicalOp value     #logicalOpExpression
 	| value multOp value        #multiplicativeExpression
@@ -58,5 +59,6 @@ STRINGVAL: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WS: [ \t\r]+ -> skip; // Skips whitespaces
 NEWLINE: [\r\n]+;
+FUNCTIONNAME: 'DISPLAY' | 'SCAN';
 VARIABLENAME: [_a-z][a-zA-Z0-9_]* | [a-z][a-zA-Z0-9_]*;
 COMMENT: '#' ~[\r\n]* -> skip;
