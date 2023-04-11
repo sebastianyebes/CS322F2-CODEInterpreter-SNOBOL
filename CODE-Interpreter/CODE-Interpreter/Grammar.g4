@@ -1,7 +1,7 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: 'BEGIN CODE' (NEWLINE statements+ | NEWLINE)* 'END CODE'; 
+program:'BEGIN CODE' (NEWLINE statements+ | NEWLINE)* 'END CODE';
 //
 
 // one or more statement (stmt | stmt , stmts)
@@ -16,8 +16,7 @@ statement: (vardec | assignment | functionCall) NEWLINE+;
 vardec: DATATYPE declaratorlist;
 //
 
-// x = 123 or x = y = 123
-//assignment: VARIABLENAME '=' value;
+// x = 123 or x = y = 123 assignment: VARIABLENAME '=' value;
 assignment: assignmentList '=' value;
 assignmentList: VARIABLENAME ('=' VARIABLENAME)*;
 //
@@ -27,7 +26,7 @@ functionCall: FUNCTIONNAME ': ' (value (',' value)*)?;
 //
 
 // x or y = 123
-declarator: VARIABLENAME | VARIABLENAME '=' value; 
+declarator: VARIABLENAME | VARIABLENAME '=' value;
 //
 
 // INT x or INT x, y
@@ -36,16 +35,18 @@ declaratorlist: declarator | declarator ',' declaratorlist;
 
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL | STRINGVAL;
 
-value:                          
-    constant                    #constantExpression
-    | VARIABLENAME              #variablenameExpression
-    | functionCall              #functionCallExpression
-	| value compareOp value     #comparisonExpression
-	| value logicalOp value     #logicalOpExpression
-	| value multOp value        #multiplicativeExpression
-	| value addOp value         #additiveExpression
-	| value concOp value        #concatenateExpression
-    ;
+value:
+	constant				# constantExpression
+	| VARIABLENAME			# variablenameExpression
+	| functionCall			# functionCallExpression
+	| value compareOp value	# comparisonExpression
+	| value logicalOp value	# logicalOpExpression
+	| value multOp value	# multiplicativeExpression
+	| value addOp value		# additiveExpression
+	| NEWLINEOP             # newlineopExpression
+	| value concOp value	# concatenateExpression
+	;
+	
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
@@ -53,12 +54,15 @@ logicalOp: 'AND' | 'OR' | 'NOT';
 concOp: '&';
 assgnOp: '=';
 
+NEWLINEOP: '$';
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
 BOOLVAL: 'TRUE' | 'FALSE';
-CHARVAL: '\'' ([a-zA-Z]|[0-9]) '\'';
+CHARVAL: '\'' ([a-zA-Z] | [0-9]) '\'';
 INTEGERVAL: ('-')? [1-9]+;
 FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;
-STRINGVAL: ('"' ~'"'* '"') | ('\'' ~'\''* '\'') | ('[' ~']'* ']'+);
+STRINGVAL: ('"' ~'"'* '"')
+	| ('\'' ~'\''* '\'')
+	| ('[' ~']'* ']'+);
 
 WS: [ \t\r]+ -> skip; // Skips whitespaces
 NEWLINE: [\r\n]+;

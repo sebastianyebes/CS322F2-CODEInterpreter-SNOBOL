@@ -19,7 +19,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         foreach (var arg in args)
         {
-            Console.WriteLine(arg);
+            Console.Write(arg);
         }
 
         return null;
@@ -70,7 +70,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (Functions[name] is not Func<object?[], object?> func)
             throw new Exception($"Function {name} is not a function");
         
-        
         return func(args);
     }
 
@@ -83,62 +82,57 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitAssignment(GrammarParser.AssignmentContext context)
     {
         var varName = context.assignmentList().GetText();
-
         var ass = varName.Split('=');
-
         var value = Visit(context.value());
-
-        Console.WriteLine(varName);
         
-            foreach (string s in ass)
+        foreach (string s in ass)
+        {
+            if (CharVar.ContainsKey(s))
             {
-
-                    if (CharVar.ContainsKey(s))
-                    {
-                        if (value is string | value is char)
-                        {
-                            CharVar[s] = value;
-                        }
-                        else
-                        {
-                            throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
-                        }
-                    }
-                    else if (IntVar.ContainsKey(s))
-                    {
-                        if (value is int)
-                        {
-                            IntVar[s] = value;
-                        }
-                        else
-                        {
-                            throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
-                        }
-                    }
-                    else if (FloatVar.ContainsKey(s))
-                    {
-                        if (value is float)
-                        {
-                            FloatVar[s] = value;
-                        }
-                        else
-                        {
-                            throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
-                        }
-                    }
-                    else if (BoolVar.ContainsKey(s))
-                    {
-                        if (value is "TRUE" || value is "FALSE")
-                        {
-                            BoolVar[s] = value;
-                        }
-                        else
-                        {
-                            throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
-                        }
-                    }
+                if (value is string | value is char)
+                {
+                    CharVar[s] = value;
+                }
+                else
+                {
+                    throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
+                }
             }
-            return null;
+            else if (IntVar.ContainsKey(s))
+            {
+                if (value is int)
+                {
+                    IntVar[s] = value;
+                }
+                else
+                {
+                    throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
+                }
+            }
+            else if (FloatVar.ContainsKey(s))
+            {
+                if (value is float)
+                {
+                    FloatVar[s] = value;
+                }
+                else
+                {
+                    throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
+                }
+            }
+            else if (BoolVar.ContainsKey(s))
+            {
+                if (value is "TRUE" || value is "FALSE")
+                {
+                    BoolVar[s] = value;
+                }
+                else
+                {
+                    throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
+                }
+            }
+        }
+        return null;
     }
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
@@ -251,6 +245,14 @@ public class Visitor : GrammarBaseVisitor<object?>
         return null;
     }
 
+    public override object? VisitNewlineopExpression(GrammarParser.NewlineopExpressionContext context)
+    {
+        if (context.NEWLINEOP() != null)
+            return "\n";
+        
+        return null;
+    }
+
     public override object? VisitConcatenateExpression(GrammarParser.ConcatenateExpressionContext context)
     {
         var left = Visit(context.value(0))?.ToString();
@@ -262,7 +264,8 @@ public class Visitor : GrammarBaseVisitor<object?>
         var leftType = context.value(0).GetType().ToString();
         var rightType = context.value(1).GetType().ToString();
 
-        if((leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" || rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext") && (leftValType is int || rightValType is int))
+        if((leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" || rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext") 
+           && ((leftValType is int || rightValType is int) || (leftValType is float || rightValType is float)))
             throw new Exception($"Invalid operands for concatenation");
         
         if (op == "&")

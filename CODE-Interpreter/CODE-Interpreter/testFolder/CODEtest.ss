@@ -1,6 +1,9 @@
 ﻿BEGIN CODE
-    INT x, y, z = 5  DISPLAY: x & y & z
-    x = y = z = 5
-    
-
+    INT x, y, z=5 
+    CHAR a_1='c'
+    BOOL t= "TRUE"
+    x=y=4
+    a_1= 'c'
+    # this is a comment
+    DISPLAY: x & t & z & $ & a_1 & [#] & "last"
 END CODE
