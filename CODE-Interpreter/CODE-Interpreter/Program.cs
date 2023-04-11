@@ -1,11 +1,13 @@
-﻿using Antlr4.Runtime;
+﻿using System.Text;
+using Antlr4.Runtime;
 using CODE_Interpreter;
 
 var path = Path.Combine(Directory.GetCurrentDirectory(), "../../..");
 Directory.SetCurrentDirectory(Path.GetFullPath(path));
 var contents = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "testFolder/CODEtest.ss"));
 
-if (contents.Substring(0, 10) != "BEGIN CODE" || contents.Substring(contents.Length - 8, 8) != "END CODE")
+var program = contents.Trim();
+if (!program.StartsWith("BEGIN CODE") || !program.EndsWith("END CODE"))
 {
     throw new Exception("Must start with 'BEGIN CODE' and end with 'END CODE'");
 }
