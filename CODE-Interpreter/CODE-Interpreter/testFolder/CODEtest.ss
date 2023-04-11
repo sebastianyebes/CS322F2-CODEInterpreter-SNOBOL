@@ -1,5 +1,5 @@
 ﻿BEGIN CODE
-    INT b, y
-    CHAR a, y 
-END CODE   
-
+    INT x, y, z = 5 
+    x = y = z = 5
+    DISPLAY: x & y & z
+END CODE

@@ -68,58 +68,73 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         return func(args);
     }
-    
+
+    public override object? VisitAssignmentList(GrammarParser.AssignmentListContext context)
+    {
+        var varName = context.VARIABLENAME().Select(Visit).ToArray();
+        return varName;
+    }
+
     public override object? VisitAssignment(GrammarParser.AssignmentContext context)
     {
-        var varName = context.VARIABLENAME().GetText();
+        var varName = context.assignmentList().GetText();
+
+        var ass = varName.Split('=');
+
         var value = Visit(context.value());
 
-        if (CharVar.ContainsKey(varName))
-        {
-            if (value is string | value is char)
+        Console.WriteLine(varName);
+        
+            foreach (string s in ass)
             {
-                CharVar[varName] = value;
-            }
-            else
-            {
-                throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
-            }
-        }
-        else if (IntVar.ContainsKey(varName))
-        {
-            if (value is int)
-            {
-                IntVar[varName] = value;
-            }
-            else
-            {
-                throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
-            }
-        }
-        else if (FloatVar.ContainsKey(varName))
-        {
-            if (value is float)
-            {
-                FloatVar[varName] = value;
-            }
-            else
-            {
-                throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
-            }
-        }
-        else if (BoolVar.ContainsKey(varName))
-        {
-            if (value is "TRUE" || value is "FALSE")
-            {
-                BoolVar[varName] = value;
-            }
-            else
-            {
-                throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
-            }
-        }
 
-        return null;
+                    if (CharVar.ContainsKey(s))
+                    {
+                        if (value is string | value is char)
+                        {
+                            CharVar[s] = value;
+                        }
+                        else
+                        {
+                            throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
+                        }
+                    }
+                    else if (IntVar.ContainsKey(s))
+                    {
+                        if (value is int)
+                        {
+                            Console.WriteLine("Added to int dictionary");
+                            IntVar[s] = value;
+                        }
+                        else
+                        {
+                            throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
+                        }
+                    }
+                    else if (FloatVar.ContainsKey(s))
+                    {
+                        if (value is float)
+                        {
+                            FloatVar[s] = value;
+                        }
+                        else
+                        {
+                            throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
+                        }
+                    }
+                    else if (BoolVar.ContainsKey(s))
+                    {
+                        if (value is "TRUE" || value is "FALSE")
+                        {
+                            BoolVar[s] = value;
+                        }
+                        else
+                        {
+                            throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
+                        }
+                    }
+            }
+            return null;
     }
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
@@ -257,40 +272,133 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         throw new Exception($"Invalid concatenation operator: '{op}'");
     }
-    
+    /*
     public override object? VisitAssignExpression(GrammarParser.AssignExpressionContext context)
     {
-        var leftName = context.value(0).GetText();
-        var rightName = context.value(1).GetText();
-
-        var leftNum = Visit(context.value(0));
-        var rightNum = Visit(context.value(1));
+        var val = context.value().Select(Visit).ToArray().ToString();
+        var ass = val?.Split('=');
         
+        Console.WriteLine(ass?.ToString());
+        
+        var intCount = 0;
+        var charCount = 0;
+        var floatCount = 0;
+        var boolCount = 0;
 
-        var op = context.assgnOp().GetText();
-
-        if (leftNum is int l && rightNum is int r)
+        
+        if (ass != null)
         {
-            
-            if (IntVar.ContainsKey(leftName))
+            int len = ass.Length;
+            foreach (string s in ass)
             {
-                if (!IntVar.ContainsKey(rightName))
+                if (IsInIntDictionary(s))
                 {
-                    IntVar[leftName] = context.value();
+                    intCount++;
                 }
-                IntVar[leftName] = rightNum;
-
+                if (IsInFloatDictionary(s))
+                {
+                    floatCount++;
+                }
+                if (IsInCharDictionary(s))
+                {
+                    charCount++;
+                }
+                if (IsInBoolDictionary(s))
+                {
+                    boolCount++;
+                }
             }
-            
-            if (op == "=")
+
+            if (intCount == len - 1)
             {
-                return IntVar[leftName] = rightNum;
+                for (int i = 0; i < len - 1;i++)
+                {
+                    AddValue(ass[i],ass[len-1]);
+                }
+            }
+            else if (floatCount == len - 1)
+            {
+                for (int i = 0; i < len - 1;i++)
+                {
+                    AddValue(ass[i],ass[len-1]);
+                }
+            }
+            else if (charCount == len - 1)
+            {
+                for (int i = 0; i < len - 1;i++)
+                {
+                    AddValue(ass[i],ass[len-1]);
+                }
+            }
+            else if (boolCount == len - 1)
+            {
+                for (int i = 0; i < len - 1;i++)
+                {
+                    AddValue(ass[i],ass[len-1]);
+                }
             }
         }
-        
-        throw new Exception($"Error assigning value: {leftName} = {rightName}");
-    }
+     
+        var ret = ass?[ass.Length-1];
+        return ret;
+    }*/
 
+    public bool IsInIntDictionary(String var)
+    {
+        if (IntVar.ContainsKey(var))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool IsInBoolDictionary(String var)
+    {
+        if (BoolVar.ContainsKey(var))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool IsInCharDictionary(String var)
+    {
+        if (CharVar.ContainsKey(var))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool IsInFloatDictionary(String var)
+    {
+        if (FloatVar.ContainsKey(var))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public void AddValue(String var, object? value)
+    {
+        if (IntVar[var] != null)
+        {
+            IntVar[var] = value;
+        }
+        else if (CharVar[var] != null)
+        {
+            CharVar[var] = value;
+        }
+        else if (FloatVar[var] != null)
+        {
+            FloatVar[var] = value;
+        }
+        else if (BoolVar[var] != null)
+        {
+            BoolVar[var] = value;
+        }
+    }
+    
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
     {
         var left = Visit(context.value(0));

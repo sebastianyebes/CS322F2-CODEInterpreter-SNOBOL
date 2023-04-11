@@ -17,10 +17,9 @@ vardec: DATATYPE declaratorlist;
 //
 
 // x = 123 or x = y = 123
-assignment: VARIABLENAME '=' (value | assignment);
-//assignment: assignmentList '=' value;
-//assignmentList: VARIABLENAME (assignmentOp VARIABLENAME)*;
-//assignmentOp: '=';
+//assignment: VARIABLENAME '=' value;
+assignment: assignmentList '=' value;
+assignmentList: VARIABLENAME ('=' VARIABLENAME)*;
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
