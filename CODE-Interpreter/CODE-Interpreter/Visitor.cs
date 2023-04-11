@@ -57,17 +57,14 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         var name = context.FUNCTIONNAME().GetText();
         var args = context.value().Select(Visit).ToArray();
-        //var args = context.argList()?.value()?.Select(x => Visit(x)).ToArray();
-
+        var argType = context.value(0).GetType().ToString();
+        
+        if(argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (args[0] is int || args[0] is float))
+            throw new Exception($"Invalid operands for concatenation");
         if (!Functions.ContainsKey(name))
-        {
             throw new Exception($"Function {name} is not defined");
-        }
-
         if (Functions[name] is not Func<object?[], object?> func)
-        {
-            throw new Exception($"Variable {name} is not a function");
-        }
+            throw new Exception($"Function {name} is not a function");
         
         return func(args);
     }
@@ -239,9 +236,15 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         var left = Visit(context.value(0))?.ToString();
         var right = Visit(context.value(1))?.ToString();
-
         var op = context.concOp().GetText();
 
+        var leftValType = Visit(context.value(0));
+        var rightValType = Visit(context.value(1));
+        var leftType = context.value(0).GetType().ToString();
+        var rightType = context.value(1).GetType().ToString();
+
+        if((leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" || rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext") && (leftValType is int || rightValType is int))
+            throw new Exception($"Invalid operands for concatenation");
         
         if (op == "&")
         {
@@ -249,14 +252,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             {
                 return left + right;
             }
-            else
-            {
-                throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
-            }
+            throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
         }
 
         throw new Exception($"Invalid concatenation operator: '{op}'");
-
     }
     
     public override object? VisitAssignExpression(GrammarParser.AssignExpressionContext context)
