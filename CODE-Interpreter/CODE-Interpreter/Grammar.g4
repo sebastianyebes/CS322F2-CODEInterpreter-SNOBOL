@@ -1,7 +1,7 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program:'BEGIN CODE' (NEWLINE statements+ | NEWLINE)* 'END CODE';
+program:'BEGIN CODE' NEWLINE statements+ 'END CODE';
 //
 
 // one or more statement (stmt | stmt , stmts)
@@ -9,7 +9,7 @@ statements: statement+;
 //
 
 // Exec (x = 123) , vardec (INT x, y =123)
-statement: (vardec | assignment | functionCall) NEWLINE+;
+statement: (vardec | assignment | functionCall) NEWLINE;
 //
 
 // INT x or INT x, y
@@ -65,7 +65,7 @@ STRINGVAL: ('"' ~'"'* '"')
 	| ('[' ~']'* ']'+);
 
 WS: [ \t\r]+ -> skip; // Skips whitespaces
-NEWLINE: [\r\n]+;
+NEWLINE: [\r\n];
 FUNCTIONNAME: 'DISPLAY' | 'SCAN';
 VARIABLENAME: [_a-z][a-zA-Z0-9_]* | [a-z][a-zA-Z0-9_]*;
 COMMENT: '#' ~[\r\n]* -> skip;

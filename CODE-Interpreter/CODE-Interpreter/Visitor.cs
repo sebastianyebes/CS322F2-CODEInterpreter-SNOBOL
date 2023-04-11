@@ -53,7 +53,17 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (hasSame)
             throw new Exception($"Multiple declaration of Variable {varName}");
     }
-    
+
+    public override object? VisitStatement(GrammarParser.StatementContext context)
+    {
+        var newLine = context.NEWLINE().GetText();
+
+        if (newLine != "\n")
+            throw new Exception("Invalid Code Format");
+        
+        return base.VisitStatement(context);
+    }
+
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
         var name = context.FUNCTIONNAME().GetText();
@@ -140,7 +150,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         var varDeclarator = context.declaratorlist().GetText();
         string[] variableList = varDeclarator.Split(',');
         int variableCount = variableList.Length;
-
+        
         if (varDeclarator.Contains('='))
         {
             string[] lastVariable = variableList[variableCount - 1].Split('=');
