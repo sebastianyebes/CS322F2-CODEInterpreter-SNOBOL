@@ -264,8 +264,9 @@ public class Visitor : GrammarBaseVisitor<object?>
         var leftType = context.value(0).GetType().ToString();
         var rightType = context.value(1).GetType().ToString();
 
-        if((leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" || rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext") 
-           && ((leftValType is int || rightValType is int) || (leftValType is float || rightValType is float)))
+        if(leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (leftValType is int || leftValType is float))
+            throw new Exception($"Invalid operands for concatenation");
+        if(rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (rightValType is int || rightValType is float)) 
             throw new Exception($"Invalid operands for concatenation");
         
         if (op == "&")

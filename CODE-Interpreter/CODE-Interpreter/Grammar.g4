@@ -58,7 +58,7 @@ NEWLINEOP: '$';
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
 BOOLVAL: 'TRUE' | 'FALSE';
 CHARVAL: '\'' ([a-zA-Z] | [0-9]) '\'';
-INTEGERVAL: ('-')? [1-9]+;
+INTEGERVAL: ('-')? [1-9][0-9]*;
 FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;
 STRINGVAL: ('"' ~'"'* '"')
 	| ('\'' ~'\''* '\'')
