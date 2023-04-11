@@ -24,6 +24,27 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         return null;
     }
+
+    public void DefaultDeclaration(string varDatatype, string varName)
+    {
+        switch (varDatatype)
+        {
+            case "CHAR":
+                CharVar[varName] = ' ';
+                break;
+            case "INT":
+                IntVar[varName] = 0;
+                break;
+            case "FLOAT":
+                FloatVar[varName] = 0.0;
+                break;
+            case "BOOL":
+                BoolVar[varName] = null;
+                break;
+            default:
+                throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+        }
+    }
     
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
@@ -49,8 +70,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         var varName = context.VARIABLENAME().GetText();
         var value = Visit(context.value());
 
-        
-        
         if (CharVar.ContainsKey(varName))
         {
             if (value is string | value is char)
@@ -59,7 +78,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new Exception($"Invalid assignment for variable {varName}: expected a character");
+                throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
             }
         }
         else if (IntVar.ContainsKey(varName))
@@ -70,7 +89,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new Exception($"Invalid assignment for variable {varName} : expected a integer");
+                throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
             }
         }
         else if (FloatVar.ContainsKey(varName))
@@ -81,7 +100,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new Exception($"Invalid assignment for variable {varName}: expected a floating point");
+                throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
             }
         }
         else if (BoolVar.ContainsKey(varName))
@@ -92,111 +111,71 @@ public class Visitor : GrammarBaseVisitor<object?>
             }
             else
             {
-                throw new Exception($"Invalid assignment for variable {varName}: expected a boolean");
+                throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
             }
         }
-        
 
         return null;
     }
     
 
     public override object? VisitVardec(GrammarParser.VardecContext context)
-    {   
-        
+    {
         var varDatatype = context.DATATYPE().GetText();
-        var varName = context.declaratorlist().declarator().VARIABLENAME().GetText();
-        if (varDatatype == "")
+        var varDeclarator = context.declaratorlist().GetText();
+        string[] variableList = varDeclarator.Split(',');
+        int variableCount = variableList.Length;
+
+        if (varDeclarator.Contains('='))
         {
-            throw new Exception($"{varName} not declared");
+            string[] lastVariable = variableList[variableCount - 1].Split('=');
+            var varName = lastVariable[0];
+            var value = lastVariable[1];
+            int intValue;
+            float floatValue;
+            bool isNum = int.TryParse(value, out intValue), isFloat = float.TryParse(value, out floatValue);
+
+            if (!isNum || !isFloat)
+                value = value[1..^1];
+            
+            for (int i = 0; i < variableCount; i++)
+            {
+                if (i == variableCount - 1)
+                {
+                    if (varDatatype == "CHAR" && !isNum)
+                    {
+                        CharVar[varName] = value;
+                    }
+                    else if (varDatatype == "INT" && isNum)
+                    {
+                        IntVar[varName] = intValue;
+                    }
+                    else if (varDatatype == "FLOAT" && isFloat)
+                    {
+                        FloatVar[varName] = floatValue;
+                    }
+                    else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
+                    {
+                        BoolVar[varName] = value;
+                    }
+                    else
+                    {
+                        throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                    }
+                    break;
+                }
+
+                DefaultDeclaration(varDatatype, variableList[i]);
+            }
         }
         else
         {
-            
-            var valueText = context.declaratorlist().declarator().value();
-            if (valueText != null)
+            for (int i = 0; i < variableCount; i++)
             {
-                var value = context.declaratorlist().declarator().value().GetText();
-                switch (varDatatype)
-                {
-                    case "CHAR":
-                        try
-                        {
-                            CharVar[varName] = value[1..^1];
-                        }
-                        catch(Exception e)
-                        {
-                            throw new Exception($"Invalid value for variable {varName}: expected a character");
-                        }
-                         
-                        break;
-                    case "INT":
-                        try
-                        {
-                            IntVar[varName] = Convert.ToInt32(value);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception($"Invalid value for variable {varName} : expected a integer");
-                        }
-                        break;
-                    case "FLOAT":
-                        try
-                        {
-                            FloatVar[varName] = Convert.ToDouble(value);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception($"Invalid value for variable {varName}: expected a floating point");
-                        }
-                        
-                        break;
-                    case "BOOL":
-                        try
-                        {
-                            BoolVar[varName] = Convert.ToBoolean(value);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception($"Invalid value for variable {varName}: expected a boolean");
-                        }
-                        
-                        break;
-                    default:
-                        throw new Exception($"Data Type {varDatatype} is not defined");
-                }
+                DefaultDeclaration(varDatatype, variableList[i]);
             }
-            else
-            {
-                switch (varDatatype)
-                {
-                    case "CHAR":
-                        CharVar[varName] = ' '; 
-                        break;
-                    case "INT":
-                        IntVar[varName] = 0;
-                        break;
-                    case "FLOAT":
-                        FloatVar[varName] = 0.0;
-                        break;
-                    case "BOOL":
-                        BoolVar[varName] = null;
-                        break;
-                    default:
-                        throw new Exception($"Data Type {varDatatype} is not defined");
-                }
-            }
-
         }
-        return null;
-    }
 
-    public override object? VisitDeclaratorlist(GrammarParser.DeclaratorlistContext context)
-    {
-        var varName = context.declarator().VARIABLENAME().GetText();
-        var value = Visit(context.declarator().value());
-
-        Functions[varName] = value;
         return null;
     }
 
