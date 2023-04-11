@@ -27,22 +27,19 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public void DefaultDeclaration(string varDatatype, string varName)
     {
+        HasSameType(varName);
         switch (varDatatype)
         {
             case "CHAR":
-                HasSameType(varName);
                 CharVar[varName] = ' ';
                 break;
             case "INT":
-                HasSameType(varName);
                 IntVar[varName] = 0;
                 break;
             case "FLOAT":
-                HasSameType(varName);
                 FloatVar[varName] = 0.0;
                 break;
             case "BOOL":
-                HasSameType(varName);
                 BoolVar[varName] = null;
                 break;
             default:
@@ -148,26 +145,23 @@ public class Visitor : GrammarBaseVisitor<object?>
             
             for (int i = 0; i < variableCount; i++)
             {
+                HasSameType(varName);
                 if (i == variableCount - 1)
                 {
                     if (varDatatype == "CHAR" && !isNum)
                     {
-                        HasSameType(varName);
                         CharVar[varName] = value;
                     }
                     else if (varDatatype == "INT" && isNum)
                     {
-                        HasSameType(varName);
                         IntVar[varName] = intValue;
                     }
                     else if (varDatatype == "FLOAT" && isFloat)
                     {
-                        HasSameType(varName);
                         FloatVar[varName] = floatValue;
                     }
                     else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
                     {
-                        HasSameType(varName);
                         BoolVar[varName] = value;
                     }
                     else
