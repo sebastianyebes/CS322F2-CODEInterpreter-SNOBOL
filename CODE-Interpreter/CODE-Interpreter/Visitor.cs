@@ -30,22 +30,32 @@ public class Visitor : GrammarBaseVisitor<object?>
         switch (varDatatype)
         {
             case "CHAR":
+                HasSameType(varName);
                 CharVar[varName] = ' ';
                 break;
             case "INT":
+                HasSameType(varName);
                 IntVar[varName] = 0;
                 break;
             case "FLOAT":
+                HasSameType(varName);
                 FloatVar[varName] = 0.0;
                 break;
             case "BOOL":
+                HasSameType(varName);
                 BoolVar[varName] = null;
                 break;
             default:
                 throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
         }
     }
-    
+    public void HasSameType(string varName)
+    {
+        bool hasSame = CharVar.ContainsKey(varName) || IntVar.ContainsKey(varName) || FloatVar.ContainsKey(varName) || BoolVar.ContainsKey(varName);
+
+        if (hasSame)
+            throw new Exception($"Multiple declaration of Variable {varName}");
+    }
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
         var name = context.FUNCTIONNAME().GetText();
@@ -117,8 +127,6 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         return null;
     }
-    
-
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
         var varDatatype = context.DATATYPE().GetText();
@@ -144,18 +152,22 @@ public class Visitor : GrammarBaseVisitor<object?>
                 {
                     if (varDatatype == "CHAR" && !isNum)
                     {
+                        HasSameType(varName);
                         CharVar[varName] = value;
                     }
                     else if (varDatatype == "INT" && isNum)
                     {
+                        HasSameType(varName);
                         IntVar[varName] = intValue;
                     }
                     else if (varDatatype == "FLOAT" && isFloat)
                     {
+                        HasSameType(varName);
                         FloatVar[varName] = floatValue;
                     }
                     else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
                     {
+                        HasSameType(varName);
                         BoolVar[varName] = value;
                     }
                     else
@@ -164,7 +176,6 @@ public class Visitor : GrammarBaseVisitor<object?>
                     }
                     break;
                 }
-
                 DefaultDeclaration(varDatatype, variableList[i]);
             }
         }
