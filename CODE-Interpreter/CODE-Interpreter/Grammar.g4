@@ -45,7 +45,6 @@ value:
 	| value multOp value        #multiplicativeExpression
 	| value addOp value         #additiveExpression
 	| value concOp value        #concatenateExpression
-	| value assgnOp value       #assignExpression
     ;
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
