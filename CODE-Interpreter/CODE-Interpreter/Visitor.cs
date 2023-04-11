@@ -53,18 +53,23 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (hasSame)
             throw new Exception($"Multiple declaration of Variable {varName}");
     }
+    
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
         var name = context.FUNCTIONNAME().GetText();
         var args = context.value().Select(Visit).ToArray();
-        var argType = context.value(0).GetType().ToString();
         
+        if(args.Length == 0)
+            throw new Exception($"Display has no input");
+        
+        var argType = context.value(0).GetType().ToString();
         if(argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (args[0] is int || args[0] is float))
             throw new Exception($"Invalid operands for concatenation");
         if (!Functions.ContainsKey(name))
             throw new Exception($"Function {name} is not defined");
         if (Functions[name] is not Func<object?[], object?> func)
             throw new Exception($"Function {name} is not a function");
+        
         
         return func(args);
     }
