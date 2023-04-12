@@ -22,19 +22,19 @@ var visitor = new Visitor();
 
 visitor.Visit(grammarContext);
 
-// foreach(KeyValuePair<string, object?> kvp in visitor.CharVar)
-// {
-//     Console.Write("CharVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
-// }
-// foreach(KeyValuePair<string, object?> kvp in visitor.IntVar)
-// {
-//     Console.Write("IntVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
-// }
-// foreach(KeyValuePair<string, object?> kvp in visitor.FloatVar)
-// {
-//     Console.Write("FlatVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
-// }
-// foreach(KeyValuePair<string, object?> kvp in visitor.BoolVar)
-// {
-//     Console.Write("BoolVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
-// }
+foreach(KeyValuePair<string, object?> kvp in visitor.CharVar)
+{
+    Console.Write("CharVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
+}
+foreach(KeyValuePair<string, object?> kvp in visitor.IntVar)
+{
+    Console.Write("IntVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
+}
+foreach(KeyValuePair<string, object?> kvp in visitor.FloatVar)
+{
+    Console.Write("FlatVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
+}
+foreach(KeyValuePair<string, object?> kvp in visitor.BoolVar)
+{
+    Console.Write("BoolVariable name: " + kvp.Key + ", Variable value: " + kvp.Value + "\n");
+}

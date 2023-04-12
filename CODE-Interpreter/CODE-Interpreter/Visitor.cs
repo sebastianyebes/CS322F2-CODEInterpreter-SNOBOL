@@ -27,7 +27,6 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public void DefaultDeclaration(string varDatatype, string varName)
     {
-        HasSameType(varName);
         switch (varDatatype)
         {
             case "CHAR":
@@ -146,61 +145,92 @@ public class Visitor : GrammarBaseVisitor<object?>
     }
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
+        var declaratorList = context.declaratorlist().GetText();
+        string[] variables = declaratorList.Split(',');
+        var count = variables.Length;
         var varDatatype = context.DATATYPE().GetText();
-        var varDeclarator = context.declaratorlist().GetText();
-        string[] variableList = varDeclarator.Split(',');
-        int variableCount = variableList.Length;
-        
-        if (varDeclarator.Contains('='))
-        {
-            string[] lastVariable = variableList[variableCount - 1].Split('=');
-            var varName = lastVariable[0];
-            var value = lastVariable[1];
-            int intValue;
-            float floatValue;
-            bool isNum = int.TryParse(value, out intValue), isFloat = float.TryParse(value, out floatValue);
 
-            if (!isNum || !isFloat)
-                value = value[1..^1];
-            
-            for (int i = 0; i < variableCount; i++)
+        if (declaratorList.Contains('='))
+        {
+            for (int x = 0; x < count; x++)
             {
-                HasSameType(varName);
-                if (i == variableCount - 1)
+                string temp = variables[x];
+
+                if (temp.Contains('='))
                 {
-                    if (varDatatype == "CHAR" && !isNum)
+                    string[] variable = temp.Split('=');
+                    var varName = variable[0];
+                    var value = variable[1];
+                    int intValue;
+                    float floatValue;
+                    bool isNum = int.TryParse(value, out intValue), isFloat = float.TryParse(value, out floatValue);
+
+                    if (!isNum && !isFloat)
                     {
-                        CharVar[varName] = value;
+                        if (value.Length == 3)
+                        {
+                            if (value.EndsWith('\'') && value.StartsWith('\''))
+                                value = value[1..^1];
+                            else
+                                throw new Exception($"Variable {value} format is invalid");
+                        }
+                        else
+                        {
+                            if (value == "\"TRUE\"" || value == "\"FALSE\"")
+                                value = value[1..^1];
+                            else
+                                throw new Exception($"Variable {value} format is invalid");
+                        }
                     }
-                    else if (varDatatype == "INT" && isNum)
+
+                    for (int i = 0; i < count; i++)
                     {
-                        IntVar[varName] = intValue;
+                        if (i == count - 1)
+                        {
+                            if (varDatatype == "CHAR" && !isNum)
+                            {
+                                HasSameType(varName);
+                                CharVar[varName] = value;
+                            }
+                            else if (varDatatype == "INT" && isNum)
+                            {
+                                HasSameType(varName);
+                                IntVar[varName] = intValue;
+                            }
+                            else if (varDatatype == "FLOAT" && isFloat)
+                            {
+                                HasSameType(varName);
+                                FloatVar[varName] = floatValue;
+                            }
+                            else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
+                            {
+                                HasSameType(varName);
+                                BoolVar[varName] = value;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Variable {varName} expected to be {varDatatype}");
+                            //throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                            }
+                            break;
+                        }
                     }
-                    else if (varDatatype == "FLOAT" && isFloat)
-                    {
-                        FloatVar[varName] = floatValue;
-                    }
-                    else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
-                    {
-                        BoolVar[varName] = value;
-                    }
-                    else
-                    {
-                        throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
-                    }
-                    break;
                 }
-                DefaultDeclaration(varDatatype, variableList[i]);
+                else
+                {
+                    HasSameType(variables[x]);
+                    DefaultDeclaration(varDatatype, variables[x]);
+                }
             }
         }
         else
         {
-            for (int i = 0; i < variableCount; i++)
+            for (int i = 0; i < count; i++)
             {
-                DefaultDeclaration(varDatatype, variableList[i]);
+                HasSameType(variables[i]);
+                DefaultDeclaration(varDatatype, variables[i]);
             }
         }
-
         return null;
     }
 
