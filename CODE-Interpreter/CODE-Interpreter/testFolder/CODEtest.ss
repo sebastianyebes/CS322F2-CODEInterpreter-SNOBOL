@@ -1,3 +1,3 @@
 ﻿BEGIN CODE
-    CHAR
+    DISPLAY: "hello" & 'hel'
 END CODE

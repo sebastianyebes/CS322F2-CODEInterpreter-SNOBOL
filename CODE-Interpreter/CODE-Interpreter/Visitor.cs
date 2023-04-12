@@ -70,7 +70,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         if(args.Length == 0)
             throw new Exception($"Display has no input");
-        
+
         var argType = context.value(0).GetType().ToString();
         if(argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (args[0] is int || args[0] is float))
             throw new Exception($"Invalid operands for concatenation");
@@ -150,6 +150,9 @@ public class Visitor : GrammarBaseVisitor<object?>
         var count = variables.Length;
         var varDatatype = context.DATATYPE().GetText();
 
+        if (declaratorList == "")
+            throw new Exception("Invalid Code Format");
+        
         if (declaratorList.Contains('='))
         {
             for (int x = 0; x < count; x++)
