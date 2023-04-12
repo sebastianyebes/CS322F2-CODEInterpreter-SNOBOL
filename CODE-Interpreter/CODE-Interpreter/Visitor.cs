@@ -140,6 +140,12 @@ public class Visitor : GrammarBaseVisitor<object?>
                     throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
                 }
             }
+            else
+            {
+                var name = varName.Split('=');
+                var len = varName.Split('=').Length;
+                throw new Exception($"Variable {s} is not defined.");
+            }
         }
         return null;
     }
