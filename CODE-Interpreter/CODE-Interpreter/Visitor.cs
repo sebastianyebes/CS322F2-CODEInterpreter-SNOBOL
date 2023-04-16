@@ -332,11 +332,13 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         if (op == "&")
         {
+            
             if (!string.IsNullOrEmpty(left) && !string.IsNullOrEmpty(right))
             {
                 return left + right;
             }
-            throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
+            //throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
+            
         }
 
         throw new Exception($"Invalid concatenation operator: '{op}'");
