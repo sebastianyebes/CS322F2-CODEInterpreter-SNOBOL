@@ -169,7 +169,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                                 HasSameType(varName);
                                 IntVar[varName] = intValue;
                             }
-                            else if (varDatatype == "FLOAT" && isFloat)
+                            else if (varDatatype == "FLOAT" && !isNum)
                             {
                                 HasSameType(varName);
                                 FloatVar[varName] = floatValue;
