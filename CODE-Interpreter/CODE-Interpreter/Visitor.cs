@@ -93,6 +93,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         var varName = context.assignmentList().GetText();
         var ass = varName.Split('=');
         var value = Visit(context.value());
+        int num = 0;
         
         foreach (string s in ass)
         {
@@ -104,7 +105,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
+                    throw new Exception($"Invalid assignment for variable {s}: expected to be CHAR");
                 }
             }
             else if (IntVar.ContainsKey(s))
@@ -115,7 +116,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
+                    throw new Exception($"Invalid assignment for variable {s} : expected to be INT");
                 }
             }
             else if (FloatVar.ContainsKey(s))
@@ -126,7 +127,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
+                    throw new Exception($"Invalid assignment for variable {s}: expected to be FLOAT");
                 }
             }
             else if (BoolVar.ContainsKey(s))
@@ -137,16 +138,20 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
+                    throw new Exception($"Invalid assignment for variable {s}: expected to be BOOL");
                 }
+            }
+            else if (s.All(char.IsUpper) || int.TryParse(s, out num))
+            {
+                throw new Exception($"Invalid format for variable {s}");
             }
             else
             {
-                var name = varName.Split('=');
-                var len = varName.Split('=').Length;
                 throw new Exception($"Variable {s} is not defined.");
             }
         }
+
+        throw new Exception("here");
         return null;
     }
     public override object? VisitVardec(GrammarParser.VardecContext context)
@@ -158,6 +163,15 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         if (declaratorList == "")
             throw new Exception("Invalid Code Format");
+
+        for (int i = 0; i < count; i++)
+        {
+            int num = 0;
+            var first = variables[i][0];
+            if(char.IsDigit(first) || char.IsUpper(first))
+                throw new Exception($"Variable {variables[i]} format is invalid");
+            //throw new Exception("here");
+        }
         
         if (declaratorList.Contains('='))
         {
@@ -218,8 +232,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                Console.WriteLine($"Variable {varName} expected to be {varDatatype}");
-                            //throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                                throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
                             }
                             break;
                         }

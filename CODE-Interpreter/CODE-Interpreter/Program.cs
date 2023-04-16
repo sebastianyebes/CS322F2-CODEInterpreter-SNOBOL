@@ -54,6 +54,13 @@ var grammarLexer = new GrammarLexer(inputStream);
 var commonTokenStream = new CommonTokenStream(grammarLexer);
 var grammarParser = new GrammarParser(commonTokenStream);
 
+var parserErrorListener = new ParserErrorListener();
+var lexerErrorListener = new LexerErrorListener();
+
+grammarLexer.RemoveErrorListeners();
+grammarLexer.AddErrorListener(lexerErrorListener);
+grammarParser.AddErrorListener(parserErrorListener);
+
 var grammarContext = grammarParser.program();
 var visitor = new Visitor();
 

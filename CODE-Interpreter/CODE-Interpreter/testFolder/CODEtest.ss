@@ -1,12 +1,3 @@
-﻿# this is a sample program in CODE
-BEGIN CODE
-    INT x, y, z=5 
-    CHAR a_1= 'n'
-    BOOL t= "TRUE"
-    x=y=4
-    a_1= 'c'
-    # this is a comment
-    DISPLAY: x & t & z & $ & a_1 & [#] & "last"
+﻿BEGIN CODE
+    DISPLAY: a & 12
 END CODE
-#dsadada
-#dasdasjda
