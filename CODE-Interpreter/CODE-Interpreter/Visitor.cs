@@ -67,7 +67,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public override object? VisitAssignmentList(GrammarParser.AssignmentListContext context)
     {
-        var varName = context.variablename().Select(Visit).ToArray();
+        var varName = context.value().Select(Visit).ToArray();
         return varName;
     }
 
@@ -256,7 +256,31 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         throw new Exception($"Variable {varName} is not defined");
     }
-    
+
+    public override object? VisitValuevariablenameExpression(GrammarParser.ValuevariablenameExpressionContext context)
+    {
+        var varName = context.VARIABLENAME().GetText();
+
+        if (CharVar.ContainsKey(varName))
+        {
+            return CharVar[varName];
+        }
+        if (IntVar.ContainsKey(varName))
+        {
+            return IntVar[varName];
+        }
+        if (FloatVar.ContainsKey(varName))
+        {
+            return FloatVar[varName];
+        }
+        if (BoolVar.ContainsKey(varName))
+        {
+            return BoolVar[varName];
+        }
+
+        throw new Exception($"Variable {varName} is not defined");
+    }
+
     public override object? VisitStringvalExpression(GrammarParser.StringvalExpressionContext context)
     {
         if (context.STRINGVAL() is { } c)

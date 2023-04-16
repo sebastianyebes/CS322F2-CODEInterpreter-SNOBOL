@@ -20,7 +20,7 @@ vardec: DATATYPE declaratorlist;
 
 // x = 123 or x = y = 123 assignment: VARIABLENAME '=' value;
 assignment: assignmentList '=' value;
-assignmentList: variablename ('=' variablename)*;
+assignmentList: value ('=' value)*;
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
@@ -40,6 +40,7 @@ variablename: VARIABLENAME;
 
 value:
 	constant				# constantExpression
+	|VARIABLENAME           # valuevariablenameExpression
 	| functionCall			# functionCallExpression
 	| value compareOp value	# comparisonExpression
 	| value logicalOp value	# logicalOpExpression
