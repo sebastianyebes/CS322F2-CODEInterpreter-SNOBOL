@@ -20,7 +20,7 @@ vardec: DATATYPE declaratorlist;
 
 // x = 123 or x = y = 123 assignment: VARIABLENAME '=' value;
 assignment: assignmentList '=' value;
-assignmentList: VARIABLENAME ('=' VARIABLENAME)*;
+assignmentList: variablename ('=' variablename)*;
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
@@ -28,7 +28,7 @@ functionCall: FUNCTIONNAME ': ' displayvalue+;
 //
 
 // x or y = 123
-declarator: VARIABLENAME | VARIABLENAME '=' value;
+declarator: variablename | variablename '=' value;
 //
 
 // INT x or INT x, y
@@ -36,10 +36,10 @@ declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
+variablename: VARIABLENAME;
 
 value:
 	constant				# constantExpression
-	| VARIABLENAME			# variablenameExpression
 	| functionCall			# functionCallExpression
 	| value compareOp value	# comparisonExpression
 	| value logicalOp value	# logicalOpExpression
