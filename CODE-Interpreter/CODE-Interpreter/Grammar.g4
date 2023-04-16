@@ -1,7 +1,7 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: NEWLINE* 'BEGIN CODE' NEWLINE statements* 'END CODE' ;
+program: NEWLINE* 'BEGIN CODE' NEWLINE statements* 'END CODE' (NEWLINE)* EOF;
 //program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
