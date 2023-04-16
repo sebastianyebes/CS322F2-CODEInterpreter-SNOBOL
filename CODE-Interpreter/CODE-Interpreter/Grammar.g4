@@ -1,7 +1,8 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: 'BEGIN CODE' NEWLINE statements+ 'END CODE';
+program: (COMMENT | NEWLINE)* 'BEGIN CODE' NEWLINE statements+ 'END CODE' (COMMENT | NEWLINE)*;
+//program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
 // one or more statement (stmt | stmt , stmts)
@@ -55,7 +56,7 @@ concOp: '&';
 assgnOp: '=';
 
 NEWLINEOP: '$';
-DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';    
+DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
 BOOLVAL: 'TRUE' | 'FALSE';
 CHARVAL: '\'' ([a-z] | [A-Z] | [0-9]) '\'';
 INTEGERVAL: ('-')? [1-9][0-9]*;
@@ -66,5 +67,5 @@ STRINGVAL: ('"' ~'"'* '"')
 WS: [ \t\r]+ -> skip; // Skips whitespaces
 NEWLINE: [\r\n];
 FUNCTIONNAME: 'DISPLAY' | 'SCAN';
-VARIABLENAME: [_a-z][a-zA-Z_]* | [a-z][a-zA-Z_]*;
+VARIABLENAME: [_a-z][a-zA-Z0-9_]* | [a-z][a-zA-Z0-9_]*;
 COMMENT: '#' ~[\r\n]* -> skip;

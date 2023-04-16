@@ -7,8 +7,55 @@ var path = Path.Combine(Directory.GetCurrentDirectory(), "../../..");
 Directory.SetCurrentDirectory(Path.GetFullPath(path));
 var contents = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "testFolder/CODEtest.ss"));
 
+bool hasBegin = false;
+bool hasEnd = false;
+string[] program = contents.Split("\n");
+
+foreach (string line in program)
+{
+    if (line.Length <= 0 || line[0].Equals('#'))
+    {
+        continue;
+    }
+            
+    if (!line[0].Equals('#') && hasBegin && hasEnd)
+    {
+        throw new Exception("Error: Variable is out of scope.");
+    }
+            
+    if ( line.Length >=10 && line.Substring(0, 10).Equals("BEGIN CODE"))
+    {
+                
+        if (hasBegin)
+        {
+            throw new Exception("Error: Multiple BEGIN CODE exists.");
+        }
+        hasBegin = true;
+                
+    }else if (line.Length >=8 && hasBegin && line.Substring(0, 8).Equals("END CODE"))
+    {
+
+        if (hasEnd)
+        {
+            throw new Exception("Error: Multiple END CODE exists.");
+        }
+
+        hasEnd = true;
+    }
+
+}
+
+if (hasBegin == false)
+{
+    throw new Exception("Error: No BEGIN CODE exists.");
+}else if (hasBegin && hasEnd == false )
+{
+    throw new Exception("Error: No END CODE exists.");
+}
+/*
 var program = contents.Trim();
 var sample = program.Split("\r\n",StringSplitOptions.RemoveEmptyEntries);
+*/
 
 /*
 foreach (String s in sample)
@@ -19,6 +66,7 @@ foreach (String s in sample)
         throw new Exception("Error Code Format");
 }
 */
+/*
 bool hasBegin = false;
 bool hasEnd = false;
 
@@ -48,6 +96,7 @@ else
 {
     throw new Exception("Error Code Format3");
 }
+*/
 
 var inputStream = new AntlrInputStream(contents);
 var grammarLexer = new GrammarLexer(inputStream);
