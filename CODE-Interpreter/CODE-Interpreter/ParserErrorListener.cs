@@ -5,6 +5,7 @@ public class ParserErrorListener : BaseErrorListener, IAntlrErrorListener<IToken
 { 
     public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
     {
+        string tokenName = recognizer.Vocabulary.GetDisplayName(offendingSymbol.Type);
         string errorMessage = $"Token recognition error at line {line}:{charPositionInLine} - {msg}";
         Console.Error.WriteLine(errorMessage);
     }

@@ -1,7 +1,7 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: NEWLINE* 'BEGIN CODE' NEWLINE statements+ 'END CODE' ;
+program: NEWLINE* 'BEGIN CODE' NEWLINE statements* 'END CODE' ;
 //program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
@@ -24,7 +24,7 @@ assignmentList: VARIABLENAME ('=' VARIABLENAME)*;
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
-functionCall: FUNCTIONNAME ': ' (value (',' value)*)?;
+functionCall: FUNCTIONNAME ': ' displayvalue+;
 //
 
 // x or y = 123
@@ -35,7 +35,7 @@ declarator: VARIABLENAME | VARIABLENAME '=' value;
 declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
-constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL | STRINGVAL;
+constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 
 value:
 	constant				# constantExpression
@@ -45,9 +45,14 @@ value:
 	| value logicalOp value	# logicalOpExpression
 	| value multOp value	# multiplicativeExpression
 	| value addOp value		# additiveExpression
-	| NEWLINEOP             # newlineopExpression
-	| value concOp value	# concatenateExpression
 	;
+	
+displayvalue: 
+    VARIABLENAME            # displayvariablenameExpression
+    | STRINGVAL             # stringvalExpression
+    | NEWLINEOP             # newlineopExpression
+    | displayvalue concOp displayvalue	# concatenateExpression
+    ;
 	
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
