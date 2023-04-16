@@ -174,10 +174,10 @@ public class Visitor : GrammarBaseVisitor<object?>
                                 HasSameType(varName);
                                 FloatVar[varName] = floatValue;
                             }
-                            else if (varDatatype == "BOOL" && (value == "TRUE" || value == "FALSE"))
+                            else if (varDatatype == "BOOL" && (value[1..^1] == "TRUE" || value[1..^1] == "FALSE"))
                             {
                                 HasSameType(varName);
-                                BoolVar[varName] = value;
+                                BoolVar[varName] = value[1..^1];
                             }
                             else
                             {
@@ -284,9 +284,9 @@ public class Visitor : GrammarBaseVisitor<object?>
             return c.GetText()[1..^1];
         }
 
-        if (context.BOOLVAL() != null)
+        if (context.BOOLVAL() is { } b)
         {
-            return context.BOOLVAL().GetText() == "TRUE";
+            return b.GetText()[1..^1];
         }
 
         return null;
@@ -306,16 +306,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         var right = Visit(context.displayvalue(1))?.ToString();
         var op = context.concOp().GetText();
 
-        var leftValType = Visit(context.displayvalue(0));
-        var rightValType = Visit(context.displayvalue(1));
-        var leftType = context.displayvalue(0).GetType().ToString();
-        var rightType = context.displayvalue(1).GetType().ToString();
-
-        if(leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (leftValType is int || leftValType is float))
-            throw new Exception($"Invalid operands for concatenation");
-        if(rightType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (rightValType is int || rightValType is float)) 
-            throw new Exception($"Invalid operands for concatenation");
-        
         if (op == "&")
         {
             if (!string.IsNullOrEmpty(left) && !string.IsNullOrEmpty(right))

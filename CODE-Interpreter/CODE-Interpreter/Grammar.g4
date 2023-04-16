@@ -63,7 +63,7 @@ assgnOp: '=';
 
 NEWLINEOP: '$';
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
-BOOLVAL: 'TRUE' | 'FALSE';
+BOOLVAL: '"TRUE"' | '"FALSE"';
 CHARVAL: '\'' ([a-z] | [A-Z] | [0-9]) '\'';
 INTEGERVAL: ('-')? [1-9][0-9]*;
 FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;
