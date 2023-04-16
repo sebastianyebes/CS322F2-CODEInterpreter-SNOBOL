@@ -1,7 +1,7 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: NEWLINE* 'BEGIN CODE' NEWLINE statements+ 'END CODE' ;
+program: NEWLINE* 'BEGIN CODE' NEWLINE statements* 'END CODE' ;
 //program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
@@ -20,34 +20,39 @@ vardec: DATATYPE declaratorlist;
 
 // x = 123 or x = y = 123 assignment: VARIABLENAME '=' value;
 assignment: assignmentList '=' value;
-assignmentList: VARIABLENAME ('=' VARIABLENAME)*;
+assignmentList: variablename ('=' variablename)*;
 //
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
-functionCall: FUNCTIONNAME ': ' (value (',' value)*)?;
+functionCall: FUNCTIONNAME ': ' displayvalue+;
 //
 
 // x or y = 123
-declarator: VARIABLENAME | VARIABLENAME '=' value;
+declarator: variablename | variablename '=' value;
 //
 
 // INT x or INT x, y
 declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
-constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL | STRINGVAL;
+constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
+variablename: VARIABLENAME;
 
 value:
 	constant				# constantExpression
-	| VARIABLENAME			# variablenameExpression
 	| functionCall			# functionCallExpression
 	| value compareOp value	# comparisonExpression
 	| value logicalOp value	# logicalOpExpression
 	| value multOp value	# multiplicativeExpression
 	| value addOp value		# additiveExpression
-	| NEWLINEOP             # newlineopExpression
-	| value concOp value	# concatenateExpression
 	;
+	
+displayvalue: 
+    VARIABLENAME            # displayvariablenameExpression
+    | STRINGVAL             # stringvalExpression
+    | NEWLINEOP             # newlineopExpression
+    | displayvalue concOp displayvalue	# concatenateExpression
+    ;
 	
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';

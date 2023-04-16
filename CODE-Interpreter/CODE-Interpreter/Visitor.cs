@@ -52,28 +52,11 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (hasSame)
             throw new Exception($"Multiple declaration of Variable {varName}");
     }
-
-    public override object? VisitStatement(GrammarParser.StatementContext context)
-    {
-        var newLine = context.NEWLINE().GetText();
-
-        if (newLine != "\n")
-            throw new Exception("Invalid Code Format");
-        
-        return base.VisitStatement(context);
-    }
-
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
         var name = context.FUNCTIONNAME().GetText();
-        var args = context.value().Select(Visit).ToArray();
-        
-        if(args.Length == 0)
-            throw new Exception($"Display has no input");
+        var args = context.displayvalue().Select(Visit).ToArray();
 
-        var argType = context.value(0).GetType().ToString();
-        if(argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (args[0] is int || args[0] is float))
-            throw new Exception($"Invalid operands for concatenation");
         if (!Functions.ContainsKey(name))
             throw new Exception($"Function {name} is not defined");
         if (Functions[name] is not Func<object?[], object?> func)
@@ -84,7 +67,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public override object? VisitAssignmentList(GrammarParser.AssignmentListContext context)
     {
-        var varName = context.VARIABLENAME().Select(Visit).ToArray();
+        var varName = context.variablename().Select(Visit).ToArray();
         return varName;
     }
 
@@ -149,6 +132,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         }
         return null;
     }
+
     public override object? VisitVardec(GrammarParser.VardecContext context)
     {
         var declaratorList = context.declaratorlist().GetText();
@@ -156,9 +140,6 @@ public class Visitor : GrammarBaseVisitor<object?>
         var count = variables.Length;
         var varDatatype = context.DATATYPE().GetText();
 
-        if (declaratorList == "")
-            throw new Exception("Invalid Code Format");
-        
         if (declaratorList.Contains('='))
         {
             for (int x = 0; x < count; x++)
@@ -173,24 +154,6 @@ public class Visitor : GrammarBaseVisitor<object?>
                     int intValue;
                     float floatValue;
                     bool isNum = int.TryParse(value, out intValue), isFloat = float.TryParse(value, out floatValue);
-
-                    if (!isNum && !isFloat)
-                    {
-                        if (value.Length == 3)
-                        {
-                            if (value.EndsWith('\'') && value.StartsWith('\''))
-                                value = value[1..^1];
-                            else
-                                throw new Exception($"Variable {value} format is invalid");
-                        }
-                        else
-                        {
-                            if (value == "\"TRUE\"" || value == "\"FALSE\"")
-                                value = value[1..^1];
-                            else
-                                throw new Exception($"Variable {value} format is invalid");
-                        }
-                    }
 
                     for (int i = 0; i < count; i++)
                     {
@@ -218,9 +181,11 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                Console.WriteLine($"Invalid value for variable {varName}: expected to be {varDatatype}");
-                                
+                                Console.WriteLine(
+                                    $"Invalid value for variable {varName}: expected to be {varDatatype}");
+
                             }
+
                             break;
                         }
                     }
@@ -240,10 +205,11 @@ public class Visitor : GrammarBaseVisitor<object?>
                 DefaultDeclaration(varDatatype, variables[i]);
             }
         }
+
         return null;
     }
 
-    public override object? VisitVariablenameExpression(GrammarParser.VariablenameExpressionContext context)
+    public override object? VisitVariablename(GrammarParser.VariablenameContext context)
     {
         var varName = context.VARIABLENAME().GetText();
 
@@ -267,30 +233,62 @@ public class Visitor : GrammarBaseVisitor<object?>
         throw new Exception($"Variable {varName} is not defined");
     }
 
+    public override object? VisitDisplayvariablenameExpression(GrammarParser.DisplayvariablenameExpressionContext context)
+    {
+        var varName = context.VARIABLENAME().GetText();
+
+        if (CharVar.ContainsKey(varName))
+        {
+            return CharVar[varName];
+        }
+        if (IntVar.ContainsKey(varName))
+        {
+            return IntVar[varName];
+        }
+        if (FloatVar.ContainsKey(varName))
+        {
+            return FloatVar[varName];
+        }
+        if (BoolVar.ContainsKey(varName))
+        {
+            return BoolVar[varName];
+        }
+
+        throw new Exception($"Variable {varName} is not defined");
+    }
+    
+    public override object? VisitStringvalExpression(GrammarParser.StringvalExpressionContext context)
+    {
+        if (context.STRINGVAL() is { } c)
+        {
+            return c.GetText()[1..^1];
+        }
+
+        return null;
+    }
+
     public override object? VisitConstant(GrammarParser.ConstantContext context)
     {
         if (context.INTEGERVAL() != null)
         {
             return int.Parse(context.INTEGERVAL().GetText());
         }
+
         if (context.FLOATVAL() != null)
         {
             return float.Parse(context.FLOATVAL().GetText());
         }
-        if (context.CHARVAL() is {} c)
+
+        if (context.CHARVAL() is { } c)
         {
             return c.GetText()[1..^1];
         }
+
         if (context.BOOLVAL() != null)
         {
             return context.BOOLVAL().GetText() == "TRUE";
         }
 
-        if (context.STRINGVAL() is { } s)
-        {
-            return s.GetText()[1..^1];
-        }
-        
         return null;
     }
 
@@ -304,14 +302,14 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public override object? VisitConcatenateExpression(GrammarParser.ConcatenateExpressionContext context)
     {
-        var left = Visit(context.value(0))?.ToString();
-        var right = Visit(context.value(1))?.ToString();
+        var left = Visit(context.displayvalue(0))?.ToString();
+        var right = Visit(context.displayvalue(1))?.ToString();
         var op = context.concOp().GetText();
 
-        var leftValType = Visit(context.value(0));
-        var rightValType = Visit(context.value(1));
-        var leftType = context.value(0).GetType().ToString();
-        var rightType = context.value(1).GetType().ToString();
+        var leftValType = Visit(context.displayvalue(0));
+        var rightValType = Visit(context.displayvalue(1));
+        var leftType = context.displayvalue(0).GetType().ToString();
+        var rightType = context.displayvalue(1).GetType().ToString();
 
         if(leftType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" && (leftValType is int || leftValType is float))
             throw new Exception($"Invalid operands for concatenation");
