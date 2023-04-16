@@ -1,7 +1,8 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
+program: (COMMENT | NEWLINE)* 'BEGIN CODE' NEWLINE statements+ 'END CODE' (COMMENT | NEWLINE)*;
+//program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
 // one or more statement (stmt | stmt , stmts)

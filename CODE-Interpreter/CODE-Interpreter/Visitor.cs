@@ -19,7 +19,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         foreach (var arg in args)
         {
-            Console.Write(arg);
+            Console.Write(arg + "\n");
         }
 
         return null;
@@ -218,8 +218,8 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                Console.WriteLine($"Variable {varName} expected to be {varDatatype}");
-                            //throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                                Console.WriteLine($"Invalid value for variable {varName}: expected to be {varDatatype}");
+                                
                             }
                             break;
                         }
