@@ -13,16 +13,18 @@ string[] program = contents.Split("\n");
 
 foreach (string line in program)
 {
-    if (line.Length <= 0 || line[0].Equals('#'))
+    
+    if (line.Length == 1 || line[0].Equals('#'))
     {
         continue;
     }
-            
+    
+    
     if (!line[0].Equals('#') && hasBegin && hasEnd)
     {
-        throw new Exception("Error: Variable is out of scope.");
+        throw new Exception("Error: Defined outside the program.");
     }
-            
+    
     if ( line.Length >=10 && line.Substring(0, 10).Equals("BEGIN CODE"))
     {
                 
