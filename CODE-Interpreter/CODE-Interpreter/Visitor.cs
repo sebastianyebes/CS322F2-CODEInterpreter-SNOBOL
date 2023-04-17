@@ -118,6 +118,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                 {
                     BoolVar[s] = value;
                 }
+
                 else
                 {
                     throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
@@ -155,6 +156,32 @@ public class Visitor : GrammarBaseVisitor<object?>
                     float floatValue;
                     bool isNum = int.TryParse(value, out intValue), isFloat = float.TryParse(value, out floatValue);
 
+                    if (!isNum || !isFloat)
+                    {
+                        if (value.Length == 3)
+                        {
+                            if (value.EndsWith('\'') && value.StartsWith('\''))
+                            {
+                                value = value[1..^1];
+                            }
+                            else
+                            {
+                                throw new Exception($"Value {value} is invalid");
+                            }
+                        }
+                        else
+                        {
+                            if (value == "\"TRUE\"" || value == "\"FALSE\"")
+                            {
+                                value = value[1..^1];
+                            }
+                            else
+                            {
+                                throw new Exception($"Value {value} is invalid");
+                            }
+                        }
+                    }
+
                     for (int i = 0; i < count; i++)
                     {
                         if (i == count - 1)
@@ -169,15 +196,15 @@ public class Visitor : GrammarBaseVisitor<object?>
                                 HasSameType(varName);
                                 IntVar[varName] = intValue;
                             }
-                            else if (varDatatype == "FLOAT" && !isNum)
+                            else if (varDatatype == "FLOAT" && isFloat)
                             {
                                 HasSameType(varName);
                                 FloatVar[varName] = floatValue;
                             }
-                            else if (varDatatype == "BOOL" && (value[1..^1] == "TRUE" || value[1..^1] == "FALSE"))
+                            else if (varDatatype == "BOOL")
                             {
                                 HasSameType(varName);
-                                BoolVar[varName] = value[1..^1];
+                                BoolVar[varName] = value;
                             }
                             else
                             {
@@ -354,7 +381,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         return op switch
         {
             "+" => Add(left, right),
-            //"-" => Subtract(left, right),
+            "-" => Subtract(left, right),
             _ => throw new NotImplementedException()
         };
     }
@@ -372,5 +399,294 @@ public class Visitor : GrammarBaseVisitor<object?>
         }
 
         throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private object? Subtract(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            return l - r;
+        }
+
+        if (left is float lf && right is float rf)
+        {
+            return lf - rf;
+        }
+
+        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+
+    public override object? VisitMultiplicativeExpression(GrammarParser.MultiplicativeExpressionContext context)
+    {
+        var left = Visit(context.value(0));
+        var right = Visit(context.value(1));
+
+        var op = context.multOp().GetText();
+
+        return op switch
+        {
+            "*" => Multiply(left, right),
+            "/" => Divide(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+    
+    private object? Multiply(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            return l * r;
+        }
+
+        if (left is float lf && right is float rf)
+        {
+            return lf * rf;
+        }
+
+        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private object? Divide(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            return l / r;
+        }
+
+        if (left is float lf && right is float rf)
+        {
+            return lf / rf;
+        }
+
+        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+
+    public override object? VisitLogicalOpExpression(GrammarParser.LogicalOpExpressionContext context)
+    {
+        var left = Visit(context.value(0));
+        var right = Visit(context.value(1));
+
+        var op = context.logicalOp().GetText();
+
+        return op switch
+        {
+            "AND" => And(left, right),
+            "OR" => Or(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+    
+    private string And(object? left, object? right)
+    {   
+        if(left is string l && right is string r)
+        {
+            if (left is "TRUE" && right is "TRUE")
+            {
+                return "TRUE";
+            }
+            else
+            {
+                return "FALSE";
+            }
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string Or(object? left, object? right)
+    {   
+        if(left is string l && right is string r)
+        {
+            if (left == "TRUE" || right == "TRUE")
+            {
+                return "TRUE";
+            }
+            else
+            {
+                return "FALSE";
+            }
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+
+    public override object? VisitComparisonExpression(GrammarParser.ComparisonExpressionContext context)
+    {
+        var left = Visit(context.value(0));
+        var right = Visit(context.value(1));
+
+        var op = context.compareOp().GetText();
+
+        return op switch
+        {
+            "==" => IsEquals(left, right),
+            "<>" => NotEquals(left, right),
+            ">" => GreaterThan(left, right),
+            "<" => LessThan(left, right),
+            ">=" => GreaterThanOrEqual(left, right),
+            "<=" => LessThanOrEqual(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+    
+    private string IsEquals(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l == r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf == rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string LessThan(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l < r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf < rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string GreaterThan(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l > r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf > rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string NotEquals(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l != r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf != rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string LessThanOrEqual(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l <= r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf <= rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private string GreaterThanOrEqual(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            if (l >= r)
+                return "TRUE";
+
+            return "FALSE";
+        }
+        
+        if (left is float lf && right is float rf)
+        {
+            if (lf >= rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+    }
+
+    public override object? VisitNotExpression(GrammarParser.NotExpressionContext context)
+    {
+        var val = Visit(context.value());
+        
+        if(val is string b)
+            return Not(b);
+        
+        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+    }
+
+    public string Not(object? val)
+    {
+        if (val is string b)
+        {
+            if (b == "TRUE")
+                return "FALSE";
+            else
+            {
+                return "TRUE";
+            }
+        }
+        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+    }
+
+    public override object? VisitParenthesizedExpression(GrammarParser.ParenthesizedExpressionContext context)
+    {
+        return Visit(context.value());
     }
 }

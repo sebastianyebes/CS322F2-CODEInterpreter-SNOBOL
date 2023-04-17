@@ -7,6 +7,7 @@ public class ParserErrorListener : BaseErrorListener, IAntlrErrorListener<IToken
     {
         string tokenName = recognizer.Vocabulary.GetDisplayName(offendingSymbol.Type);
         string errorMessage = $"Token recognition error at line {line}:{charPositionInLine} - {msg}";
-        Console.Error.WriteLine(errorMessage);
+        throw new Exception($"{errorMessage}");
+        //Console.Error.WriteLine(errorMessage);
     }
 }

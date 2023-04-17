@@ -42,10 +42,12 @@ value:
 	constant				# constantExpression
 	|VARIABLENAME           # valuevariablenameExpression
 	| functionCall			# functionCallExpression
-	| value compareOp value	# comparisonExpression
-	| value logicalOp value	# logicalOpExpression
+	| '(' value ')'         # parenthesizedExpression
+	| 'NOT' value           # notExpression	
 	| value multOp value	# multiplicativeExpression
 	| value addOp value		# additiveExpression
+	| value compareOp value	# comparisonExpression
+	| value logicalOp value	# logicalOpExpression
 	;
 	
 displayvalue: 
@@ -60,7 +62,6 @@ addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
 logicalOp: 'AND' | 'OR' | 'NOT';
 concOp: '&';
-assgnOp: '=';
 
 NEWLINEOP: '$';
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
