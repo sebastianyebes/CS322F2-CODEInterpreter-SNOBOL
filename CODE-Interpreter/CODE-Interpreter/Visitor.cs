@@ -13,6 +13,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     public Visitor()
     {
         Functions["DISPLAY"] = new Func<object?[], object?>(Display);
+        Functions["SCAN"] = new Func<object?[], object?>(VisitScan);
     }
 
     private object? Display(object?[] args)
@@ -52,6 +53,46 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (hasSame)
             throw new Exception($"Multiple declaration of Variable {varName}");
     }
+    
+    private object? VisitScan(object?[] args)
+    {
+        Console.Write("SCAN: ");
+        var input = Console.ReadLine() ?? throw new InvalidOperationException();
+        var userVariables = input.Split(',');
+        var countVariables = 0;
+        
+        foreach (var arg in args)
+        {
+            if (CharVar.ContainsKey(arg!.ToString()!))
+            {
+                var userInput = Convert.ToChar(userVariables[countVariables]);
+                CharVar[arg.ToString()!] = userInput;
+            }else if (IntVar.ContainsKey(arg!.ToString()!))
+            {
+                var userInput = Convert.ToInt32(userVariables[countVariables]);
+                IntVar[arg.ToString()!] = userInput;
+            }else if (FloatVar.ContainsKey(arg!.ToString()!))
+            {
+                var userInput = float.Parse(userVariables[countVariables]);
+                FloatVar[arg.ToString()!] = userInput;
+            }else if (BoolVar.ContainsKey(arg!.ToString()!))
+            {
+                var userInput = userVariables[countVariables];
+                if(userInput is "\"TRUE\"" or "\"FALSE\"")
+                    BoolVar[arg.ToString()!] = userInput;
+                else
+                    throw new Exception("Error: Expected a boolean value.");
+            }
+            else
+                throw new Exception("Error: Identifier is not declared.");
+            
+            countVariables++;
+        }  
+        return null;
+    }
+  
+   
+    
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
         var name = context.FUNCTIONNAME().GetText();
@@ -240,6 +281,11 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         var varName = context.VARIABLENAME().GetText();
 
+        if (context.parent.GetChild(0).ToString() == "SCAN")
+        {
+            return varName;
+        }
+
         if (CharVar.ContainsKey(varName))
         {
             return CharVar[varName];
@@ -263,7 +309,13 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitDisplayvariablenameExpression(GrammarParser.DisplayvariablenameExpressionContext context)
     {
         var varName = context.VARIABLENAME().GetText();
-
+        
+        
+        if (context.parent.GetChild(0).ToString() == "SCAN")
+        {
+            return varName;
+        }
+        
         if (CharVar.ContainsKey(varName))
         {
             return CharVar[varName];
@@ -287,7 +339,13 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitValuevariablenameExpression(GrammarParser.ValuevariablenameExpressionContext context)
     {
         var varName = context.VARIABLENAME().GetText();
-
+        
+        
+        if (context.parent.GetChild(0).ToString() == "SCAN")
+        {
+            return varName;
+        }
+        
         if (CharVar.ContainsKey(varName))
         {
             return CharVar[varName];

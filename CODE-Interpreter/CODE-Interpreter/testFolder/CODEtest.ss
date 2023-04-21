@@ -1,7 +1,7 @@
 BEGIN CODE
-    BOOL a
-    a = "TRUE"
-    DISPLAY: a
+    INT x
+    SCAN: x
+    DISPLAY: x
 END CODE
 
 

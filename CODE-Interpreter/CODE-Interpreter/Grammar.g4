@@ -25,6 +25,7 @@ assignmentList: value ('=' value)*;
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
 functionCall: FUNCTIONNAME ': ' displayvalue+;
+//functionCall: FUNCTIONNAME ': ' (value (',' value)*)?;
 //
 
 // x or y = 123
