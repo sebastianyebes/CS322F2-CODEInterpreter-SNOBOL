@@ -1,8 +1,7 @@
 BEGIN CODE
-    INT x
-    SCAN: x
-    DISPLAY: x
+INT x,y,z
+SCAN: x,y
+z = x + y
+DISPLAY: z
 END CODE
-
-
 

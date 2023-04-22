@@ -13,7 +13,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     public Visitor()
     {
         Functions["DISPLAY"] = new Func<object?[], object?>(Display);
-        Functions["SCAN"] = new Func<object?[], object?>(VisitScan);
+        Functions["SCAN"] = new Func<object?[], object?>(Scan);
     }
 
     private object? Display(object?[] args)
@@ -54,7 +54,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             throw new Exception($"Multiple declaration of Variable {varName}");
     }
     
-    private object? VisitScan(object?[] args)
+    private object? Scan(object?[] args)
     {
         Console.Write("SCAN: ");
         var input = Console.ReadLine() ?? throw new InvalidOperationException();
@@ -95,6 +95,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     
     public override object? VisitFunctionCall(GrammarParser.FunctionCallContext context)
     {
+        /*
         var name = context.FUNCTIONNAME().GetText();
         var args = context.displayvalue().Select(Visit).ToArray();
 
@@ -102,6 +103,31 @@ public class Visitor : GrammarBaseVisitor<object?>
             throw new Exception($"Function {name} is not defined");
         if (Functions[name] is not Func<object?[], object?> func)
             throw new Exception($"Function {name} is not a function");
+        
+        return func(args);
+        */
+        var funcName = context.FUNCTIONNAME().GetText();
+        var args = context.displayvalue().Select(Visit).ToArray();
+        
+        if(args.Length == 0)
+            throw new Exception($"Display has no input");
+        
+        var argType = context.displayvalue(0).GetType().ToString();
+        if (argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" &&
+            (args[0] is int || args[0] is float))
+        {
+            throw new Exception($"Invalid operands for concatenation");
+        }
+
+        if (!Functions.ContainsKey(funcName))
+        {
+            throw new Exception($"Function {funcName} is not defined");
+        }
+
+        if (Functions[funcName] is not Func<object?[], object?> func)
+        {
+            throw new Exception($"{funcName} is not a function");
+        }
         
         return func(args);
     }
