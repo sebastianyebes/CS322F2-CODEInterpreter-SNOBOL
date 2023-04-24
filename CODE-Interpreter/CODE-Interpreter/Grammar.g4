@@ -17,7 +17,7 @@ statement: (vardec NEWLINE) | NEWLINE;
 
 exec: executes+;
 
-executes: ((assignment | functionCall) NEWLINE) | NEWLINE;
+executes: ((assignment | scanCall | functionCall) NEWLINE) | NEWLINE;
 
 // INT x or INT x, y
 vardec: DATATYPE declaratorlist;
@@ -30,7 +30,8 @@ assignmentList: value ('=' value)*;
 
 //functionCall: VARIABLENAME ': ' STRINGVAL;
 //functionCall: FUNCTIONNAME ': ' displayvalue+;
-functionCall: FUNCTIONNAME ': ' (displayvalue (',' displayvalue)*)?;
+functionCall: DISPLAYNAME ': ' displayvalue;
+scanCall: SCANNAME ': ' (scanvalue (',' scanvalue)*)?;
 //
 
 // x or y = 123
@@ -57,11 +58,13 @@ value:
 	;
 	
 displayvalue: 
-    VARIABLENAME            # displayvariablenameExpression
-    | STRINGVAL             # stringvalExpression
-    | NEWLINEOP             # newlineopExpression
+    VARIABLENAME                        # displayvariablenameExpression
+    | STRINGVAL                         # stringvalExpression
+    | NEWLINEOP                         # newlineopExpression
     | displayvalue concOp displayvalue	# concatenateExpression
     ;
+    
+scanvalue: VARIABLENAME                 # scanvariablenameExpression;
 	
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
@@ -81,6 +84,7 @@ STRINGVAL: ('"' ~'"'* '"')
 COMMENT: '#' ~[\r\n]* -> skip;
 WS: [ \t\r]+ -> skip; // Skips whitespaces
 NEWLINE: [\r\n];
-FUNCTIONNAME: 'DISPLAY' | 'SCAN';
+DISPLAYNAME: 'DISPLAY';
+SCANNAME: 'SCAN';
 VARIABLENAME: [_a-z][a-zA-Z0-9_]* | [a-z][a-zA-Z0-9_]*;
 

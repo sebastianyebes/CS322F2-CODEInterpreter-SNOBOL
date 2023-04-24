@@ -4,7 +4,8 @@ using System.Linq.Expressions;
 namespace CODE_Interpreter;
 public class Visitor : GrammarBaseVisitor<object?>
 {
-    public Dictionary<string, object?> Functions { get; } = new();
+    public Dictionary<string, object?> DisplayFunctions { get; } = new();
+    public Dictionary<string, object?> ScanFunctions { get; } = new();
     public Dictionary<string, object?> CharVar { get; } = new();
     public Dictionary<string, object?> IntVar { get; } = new();
     public Dictionary<string, object?> FloatVar { get; } = new();
@@ -12,16 +13,13 @@ public class Visitor : GrammarBaseVisitor<object?>
     
     public Visitor()
     {
-        Functions["DISPLAY"] = new Func<object?[], object?>(Display);
-        Functions["SCAN"] = new Func<object?[], object?>(Scan);
+        DisplayFunctions["DISPLAY"] = new Func<object?, object?>(Display);
+        ScanFunctions["SCAN"] = new Func<object?[], object?>(Scan);
     }
 
-    private object? Display(object?[] args)
+    private object? Display(object? args)
     {
-        foreach (var arg in args)
-        {
-            Console.Write(arg + "\n");
-        }
+        Console.Write(args + "\n");
 
         return null;
     }
@@ -106,25 +104,50 @@ public class Visitor : GrammarBaseVisitor<object?>
         
         return func(args);
         */
-        var funcName = context.FUNCTIONNAME().GetText();
-        var args = context.displayvalue().Select(Visit).ToArray();
+        var funcName = context.DISPLAYNAME().GetText();
+        var args = Visit(context.displayvalue());
+        
+        var argType = context.displayvalue().GetType().ToString();
+        if (argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" &&
+            (args is int || args is float))
+        {
+            throw new Exception($"Invalid operands for concatenation");
+        }
+
+        if (!DisplayFunctions.ContainsKey(funcName))
+        {
+            throw new Exception($"Function {funcName} is not defined");
+        }
+
+        if (DisplayFunctions[funcName] is not Func<object?, object?> func)
+        {
+            throw new Exception($"{funcName} is not a function");
+        }
+        
+        return func(args);
+    }
+
+    public override object? VisitScanCall(GrammarParser.ScanCallContext context)
+    {
+        var funcName = context.SCANNAME().GetText();
+        var args = context.scanvalue().Select(Visit).ToArray();
         
         if(args.Length == 0)
-            throw new Exception($"Display has no input");
+            throw new Exception($"Scan has no input");
         
-        var argType = context.displayvalue(0).GetType().ToString();
+        var argType = context.scanvalue(0).GetType().ToString();
         if (argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" &&
             (args[0] is int || args[0] is float))
         {
             throw new Exception($"Invalid operands for concatenation");
         }
 
-        if (!Functions.ContainsKey(funcName))
+        if (!ScanFunctions.ContainsKey(funcName))
         {
             throw new Exception($"Function {funcName} is not defined");
         }
 
-        if (Functions[funcName] is not Func<object?[], object?> func)
+        if (ScanFunctions[funcName] is not Func<object?[], object?> func)
         {
             throw new Exception($"{funcName} is not a function");
         }
@@ -333,6 +356,30 @@ public class Visitor : GrammarBaseVisitor<object?>
     }
 
     public override object? VisitDisplayvariablenameExpression(GrammarParser.DisplayvariablenameExpressionContext context)
+    {
+        var varName = context.VARIABLENAME().GetText();
+
+        if (CharVar.ContainsKey(varName))
+        {
+            return CharVar[varName];
+        }
+        if (IntVar.ContainsKey(varName))
+        {
+            return IntVar[varName];
+        }
+        if (FloatVar.ContainsKey(varName))
+        {
+            return FloatVar[varName];
+        }
+        if (BoolVar.ContainsKey(varName))
+        {
+            return BoolVar[varName];
+        }
+
+        throw new Exception($"Variable {varName} is not defined");
+    }
+
+    public override object? VisitScanvariablenameExpression(GrammarParser.ScanvariablenameExpressionContext context)
     {
         var varName = context.VARIABLENAME().GetText();
         
