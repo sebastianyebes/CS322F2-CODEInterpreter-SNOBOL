@@ -1,18 +1,23 @@
 ﻿grammar Grammar;
 
 // MAIN CODE
-program: NEWLINE* 'BEGIN CODE' NEWLINE statements* 'END CODE' (NEWLINE)* EOF;
+program: NEWLINE* 'BEGIN CODE' NEWLINE statements* exec* 'END CODE' (NEWLINE)* EOF;
 //program: COMMENT* 'BEGIN CODE' NEWLINE statements+ 'END CODE' COMMENT*;
 //
 
 // one or more statement (stmt | stmt , stmts)
+//statements: statement
 statements: statement+;
 //
 
-
 // Exec (x = 123) , vardec (INT x, y =123)
-statement: ((vardec | assignment | functionCall) NEWLINE) | NEWLINE;
+statement: (vardec NEWLINE) | NEWLINE;
+//statement: ((vardec | assignment | functionCall) NEWLINE) | NEWLINE;
 //
+
+exec: executes+;
+
+executes: ((assignment | functionCall) NEWLINE) | NEWLINE;
 
 // INT x or INT x, y
 vardec: DATATYPE declaratorlist;

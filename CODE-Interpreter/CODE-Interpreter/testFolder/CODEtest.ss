@@ -4,4 +4,3 @@ SCAN: x,y
 z = x + y
 DISPLAY: z
 END CODE
-
