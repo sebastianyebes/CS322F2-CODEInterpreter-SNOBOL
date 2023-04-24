@@ -58,7 +58,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         Console.Write("SCAN: ");
         var input = Console.ReadLine() ?? throw new InvalidOperationException();
-        var userVariables = input.Split(',');
+        var userVariables = input.Replace(" ", "").Split(',');
         var countVariables = 0;
         
         foreach (var arg in args)
@@ -78,7 +78,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             }else if (BoolVar.ContainsKey(arg!.ToString()!))
             {
                 var userInput = userVariables[countVariables];
-                if(userInput is "\"TRUE\"" or "\"FALSE\"")
+                if(userInput is "TRUE" or "FALSE")
                     BoolVar[arg.ToString()!] = userInput;
                 else
                     throw new Exception("Error: Expected a boolean value.");
