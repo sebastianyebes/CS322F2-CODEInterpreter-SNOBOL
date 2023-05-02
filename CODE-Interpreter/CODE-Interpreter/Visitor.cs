@@ -517,6 +517,21 @@ public class Visitor : GrammarBaseVisitor<object?>
         };
     }
 
+    public override object? VisitAddExpression(GrammarParser.AddExpressionContext context)
+    {
+        var left = Visit(context.displayvalue(0));
+        var right = Visit(context.displayvalue(1));
+
+        var op = context.addOp().GetText();
+
+        return op switch
+        {
+            "+" => Add(left, right),
+            "-" => Subtract(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+
     private object? Add(object? left, object? right)
     {   
         if (left is int l && right is int r)
@@ -561,7 +576,22 @@ public class Visitor : GrammarBaseVisitor<object?>
             _ => throw new NotImplementedException()
         };
     }
-    
+
+    public override object? VisitMultiExpression(GrammarParser.MultiExpressionContext context)
+    {
+        var left = Visit(context.displayvalue(0));
+        var right = Visit(context.displayvalue(1));
+
+        var op = context.multOp().GetText();
+
+        return op switch
+        {
+            "*" => Multiply(left, right),
+            "/" => Divide(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+
     private object? Multiply(object? left, object? right)
     {   
         if (left is int l && right is int r)
@@ -606,7 +636,22 @@ public class Visitor : GrammarBaseVisitor<object?>
             _ => throw new NotImplementedException()
         };
     }
-    
+
+    public override object? VisitLogicExpression(GrammarParser.LogicExpressionContext context)
+    {
+        var left = Visit(context.displayvalue(0));
+        var right = Visit(context.displayvalue(1));
+
+        var op = context.logicalOp().GetText();
+
+        return op switch
+        {
+            "AND" => And(left, right),
+            "OR" => Or(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+
     private string And(object? left, object? right)
     {   
         if(left is string l && right is string r)
@@ -628,7 +673,7 @@ public class Visitor : GrammarBaseVisitor<object?>
     {   
         if(left is string l && right is string r)
         {
-            if (left == "TRUE" || right == "TRUE")
+            if (left is "TRUE" || right is "TRUE")
             {
                 return "TRUE";
             }
@@ -659,7 +704,26 @@ public class Visitor : GrammarBaseVisitor<object?>
             _ => throw new NotImplementedException()
         };
     }
-    
+
+    public override object? VisitCompExpression(GrammarParser.CompExpressionContext context)
+    {
+        var left = Visit(context.displayvalue(0));
+        var right = Visit(context.displayvalue(1));
+
+        var op = context.compareOp().GetText();
+
+        return op switch
+        {
+            "==" => IsEquals(left, right),
+            "<>" => NotEquals(left, right),
+            ">" => GreaterThan(left, right),
+            "<" => LessThan(left, right),
+            ">=" => GreaterThanOrEqual(left, right),
+            "<=" => LessThanOrEqual(left, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+
     private string IsEquals(object? left, object? right)
     {   
         if (left is int l && right is int r)
@@ -796,7 +860,17 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         var val = Visit(context.value());
         
-        if(val is string b)
+        if(val is string b && (b == "TRUE" || b == "FALSE"))
+            return Not(b);
+        
+        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+    }
+
+    public override object? VisitNoExpression(GrammarParser.NoExpressionContext context)
+    {
+        var val = Visit(context.displayvalue());
+        
+        if(val is string b && (b == "TRUE" || b == "FALSE"))
             return Not(b);
         
         throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
@@ -819,5 +893,25 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitParenthesizedExpression(GrammarParser.ParenthesizedExpressionContext context)
     {
         return Visit(context.value());
+    }
+
+    public override object? VisitParenthesisExpression(GrammarParser.ParenthesisExpressionContext context)
+    {
+        return Visit(context.displayvalue());
+    }
+
+    public override object? VisitIfCond(GrammarParser.IfCondContext context)
+    {
+        var state = Visit(context.value());
+        if (state is string b && b == "TRUE")
+        {
+            return context.ifBlock().Select(Visit).ToArray();
+        }
+        return null;
+    }
+
+    public override object? VisitIfBlock(GrammarParser.IfBlockContext context)
+    {
+        return context.executes().Select(Visit).ToArray();
     }
 }

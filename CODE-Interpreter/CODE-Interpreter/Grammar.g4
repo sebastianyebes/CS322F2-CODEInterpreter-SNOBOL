@@ -17,7 +17,7 @@ statement: (vardec NEWLINE) | NEWLINE;
 
 exec: executes+;
 
-executes: ((assignment | scanCall | functionCall) NEWLINE) | NEWLINE;
+executes: ((assignment | scanCall | functionCall | ifCond) NEWLINE) | NEWLINE;
 
 // INT x or INT x, y
 vardec: DATATYPE declaratorlist;
@@ -42,6 +42,12 @@ declarator: variablename | variablename '=' value;
 declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
+//IF block
+ifBlock: 'BEGIN IF' NEWLINE executes* 'END IF' NEWLINE*;
+
+//IfElse
+ifCond: 'IF' '(' value ')' NEWLINE ifBlock ('ELSE IF' NEWLINE ifBlock)* ('ELSE' NEWLINE ifBlock)?;
+
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 variablename: VARIABLENAME;
 
@@ -55,12 +61,20 @@ value:
 	| value addOp value		# additiveExpression
 	| value compareOp value	# comparisonExpression
 	| value logicalOp value	# logicalOpExpression
+	| logicalOp value       # logicalOpExpression
 	;
 	
 displayvalue: 
     VARIABLENAME                        # displayvariablenameExpression
     | STRINGVAL                         # stringvalExpression
     | NEWLINEOP                         # newlineopExpression
+    | '(' displayvalue ')'                  # parenthesisExpression
+    | 'NOT' displayvalue                    # noExpression	
+    | displayvalue multOp displayvalue	# multiExpression
+    | displayvalue addOp displayvalue		# addExpression
+    | displayvalue compareOp displayvalue	# compExpression
+    | displayvalue logicalOp displayvalue	# logicExpression
+    | logicalOp displayvalue       # logicExpression
     | displayvalue concOp displayvalue	# concatenateExpression
     ;
     
@@ -69,7 +83,7 @@ scanvalue: VARIABLENAME                 # scanvariablenameExpression;
 multOp: '*' | '/' | '%';
 addOp: '+' | '-';
 compareOp: '>' | '<' | '>=' | '<=' | '==' | '<>';
-logicalOp: 'AND' | 'OR' | 'NOT';
+logicalOp: 'OR' |'AND' |  'NOT';
 concOp: '&';
 
 NEWLINEOP: '$';
