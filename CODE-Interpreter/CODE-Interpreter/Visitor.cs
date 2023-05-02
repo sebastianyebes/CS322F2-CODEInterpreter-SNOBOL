@@ -171,7 +171,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             if (CharVar.ContainsKey(s))
             {
-                if (value is string | value is char)
+                if (value is char)
                 {
                     CharVar[s] = value;
                 }
@@ -279,7 +279,7 @@ public class Visitor : GrammarBaseVisitor<object?>
                             if (varDatatype == "CHAR" && !isNum)
                             {
                                 HasSameType(varName);
-                                CharVar[varName] = value;
+                                CharVar[varName] = value.ToCharArray()[0];
                             }
                             else if (varDatatype == "INT" && isNum)
                             {
@@ -463,7 +463,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         if (context.CHARVAL() is { } c)
         {
-            return c.GetText()[1..^1];
+            return c.GetText()[1..^1].ToCharArray()[0];
         }
 
         if (context.BOOLVAL() is { } b)
@@ -743,6 +743,15 @@ public class Visitor : GrammarBaseVisitor<object?>
             
         }
         
+        if (left is char lc && right is char rc)
+        {
+            if (lc == rc)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
         throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
     }
     
@@ -803,6 +812,15 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (left is float lf && right is float rf)
         {
             if (lf != rf)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
+        if (left is char lc && right is char rc)
+        {
+            if (lc != rc)
                 return "TRUE";
 
             return "FALSE";
