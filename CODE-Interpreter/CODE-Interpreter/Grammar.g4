@@ -46,7 +46,7 @@ declaratorlist: declarator | declarator ',' declaratorlist;
 ifBlock: 'BEGIN IF' NEWLINE executes* 'END IF' NEWLINE*;
 
 //IfElse
-ifCond: 'IF' '(' value ')' NEWLINE ifBlock ('ELSE IF' NEWLINE ifBlock)* ('ELSE' NEWLINE ifBlock)?;
+ifCond: 'IF' '(' value ')' NEWLINE ifBlock ('ELSE IF' '(' value ')' NEWLINE ifBlock)* ('ELSE' NEWLINE ifBlock)?;
 
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 variablename: VARIABLENAME;

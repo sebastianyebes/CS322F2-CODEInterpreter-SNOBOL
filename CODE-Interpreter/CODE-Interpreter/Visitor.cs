@@ -902,11 +902,22 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     public override object? VisitIfCond(GrammarParser.IfCondContext context)
     {
-        var state = Visit(context.value());
-        if (state is string b && b == "TRUE")
+        var state = context.value().Select(Visit).ToArray();
+
+        for (int i = 0; i < state.Length; i++)
         {
-            return context.ifBlock().Select(Visit).ToArray();
+            if (state[i] is string b && b == "TRUE")
+            {
+                return Visit(context.ifBlock(i));
+            }
         }
+
+        if (context.GetText().Contains("ELSE"))
+        {
+            return Visit(context.ifBlock(state.Length));
+        }
+        
+
         return null;
     }
 
