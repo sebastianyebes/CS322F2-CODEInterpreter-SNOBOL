@@ -967,12 +967,29 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return Visit(context.ifBlock(state.Length));
         }
-        
 
         return null;
     }
 
     public override object? VisitIfBlock(GrammarParser.IfBlockContext context)
+    {
+        return context.executes().Select(Visit).ToArray();
+    }
+
+    public override object? VisitWhileCond(GrammarParser.WhileCondContext context)
+    {
+        var state = Visit(context.value());
+        
+        while(state is string b && b == "TRUE")
+        {
+            Visit(context.whileBlock());
+            state = Visit(context.value());
+        }
+        
+        return null;
+    }
+
+    public override object? VisitWhileBlock(GrammarParser.WhileBlockContext context)
     {
         return context.executes().Select(Visit).ToArray();
     }
