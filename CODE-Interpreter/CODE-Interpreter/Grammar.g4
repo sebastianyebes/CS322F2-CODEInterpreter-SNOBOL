@@ -43,10 +43,10 @@ declaratorlist: declarator | declarator ',' declaratorlist;
 //
 
 //IF block
-ifBlock: 'BEGIN IF' NEWLINE executes* 'END IF' NEWLINE*;
+ifBlock: 'BEGIN IF' NEWLINE* executes* 'END IF' NEWLINE*;
 
 //IfElse
-ifCond: 'IF' '(' value ')' NEWLINE ifBlock ('ELSE IF' '(' value ')' NEWLINE ifBlock)* ('ELSE' NEWLINE ifBlock)?;
+ifCond: 'IF' '(' value ')' NEWLINE* ifBlock ('ELSE IF' '(' value ')' NEWLINE ifBlock)* ('ELSE' NEWLINE ifBlock)?;
 
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 variablename: VARIABLENAME;
@@ -54,18 +54,18 @@ variablename: VARIABLENAME;
 value:
 	constant				# constantExpression
 	|VARIABLENAME           # valuevariablenameExpression
-	| functionCall			# functionCallExpression
 	| '(' value ')'         # parenthesizedExpression
 	| 'NOT' value           # notExpression	
 	| value multOp value	# multiplicativeExpression
-	| value addOp value		# additiveExpression
+	| value addOp value	# additiveExpression
 	| value compareOp value	# comparisonExpression
 	| value logicalOp value	# logicalOpExpression
 	| logicalOp value       # logicalOpExpression
 	;
 	
 displayvalue: 
-    VARIABLENAME                        # displayvariablenameExpression
+    constant				            # displayconstantExpression
+    | VARIABLENAME                      # displayvariablenameExpression
     | STRINGVAL                         # stringvalExpression
     | NEWLINEOP                         # newlineopExpression
     | '(' displayvalue ')'                  # parenthesisExpression
@@ -90,7 +90,7 @@ NEWLINEOP: '$';
 DATATYPE: 'BOOL' | 'CHAR' | 'INT' | 'FLOAT';
 BOOLVAL: '"TRUE"' | '"FALSE"';
 CHARVAL: '\'' ([a-z] | [A-Z] | [0-9]) '\'';
-INTEGERVAL: ('-')? [1-9][0-9]*;
+INTEGERVAL: (('-')? [1-9][0-9]*)|'0';
 FLOATVAL: ('-')? [0-9]+ '.' ('-')? [0-9]+;
 STRINGVAL: ('"' ~'"'* '"')
 	| ('[' ~']'* ']'+);

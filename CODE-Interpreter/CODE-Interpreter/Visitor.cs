@@ -573,6 +573,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             "*" => Multiply(left, right),
             "/" => Divide(left, right),
+            "%" => Modulo(left, right),
             _ => throw new NotImplementedException()
         };
     }
@@ -588,6 +589,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             "*" => Multiply(left, right),
             "/" => Divide(left, right),
+            "%" => Modulo(left, right),
             _ => throw new NotImplementedException()
         };
     }
@@ -617,6 +619,21 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (left is float lf && right is float rf)
         {
             return lf / rf;
+        }
+
+        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+    }
+    
+    private object? Modulo(object? left, object? right)
+    {   
+        if (left is int l && right is int r)
+        {
+            return l % r;
+        }
+
+        if (left is float lf && right is float rf)
+        {
+            return lf % rf;
         }
 
         throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
@@ -752,6 +769,15 @@ public class Visitor : GrammarBaseVisitor<object?>
             
         }
         
+        if (left is string ls && right is string rs)
+        {
+            if (ls == rs)
+                return "TRUE";
+
+            return "FALSE";
+            
+        }
+        
         throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
     }
     
@@ -824,7 +850,14 @@ public class Visitor : GrammarBaseVisitor<object?>
                 return "TRUE";
 
             return "FALSE";
-            
+        }
+        
+        if (left is string ls && right is string rs)
+        {
+            if (ls == rs)
+                return "TRUE";
+
+            return "FALSE";
         }
         
         throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
