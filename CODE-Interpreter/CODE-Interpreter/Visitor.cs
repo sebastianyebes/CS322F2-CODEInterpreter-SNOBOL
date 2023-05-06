@@ -41,7 +41,10 @@ public class Visitor : GrammarBaseVisitor<object?>
                 BoolVar[varName] = null;
                 break;
             default:
-                throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                //throw new Exception($"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                WriteLineAndExit(
+                    $"Invalid assignment for variable {varName}: expected to be {varDatatype}");
+                break;
         }
     }
     public void HasSameType(string varName)
@@ -49,7 +52,9 @@ public class Visitor : GrammarBaseVisitor<object?>
         bool hasSame = CharVar.ContainsKey(varName) || IntVar.ContainsKey(varName) || FloatVar.ContainsKey(varName) || BoolVar.ContainsKey(varName);
 
         if (hasSame)
-            throw new Exception($"Multiple declaration of Variable {varName}");
+            //throw new Exception($"Multiple declaration of Variable {varName}");
+            WriteLineAndExit(
+                $"Multiple declaration of Variable {varName}");
     }
     
     private object? Scan(object?[] args)
@@ -79,10 +84,14 @@ public class Visitor : GrammarBaseVisitor<object?>
                 if(userInput is "TRUE" or "FALSE")
                     BoolVar[arg.ToString()!] = userInput;
                 else
-                    throw new Exception("Error: Expected a boolean value.");
+                    //throw new Exception("Error: Expected a boolean value.");
+                    WriteLineAndExit(
+                        "Error: Expected a boolean value.");
             }
             else
-                throw new Exception("Error: Identifier is not declared.");
+                //throw new Exception("Error: Identifier is not declared.");
+                WriteLineAndExit(
+                    "Error: Identifier is not declared.");
             
             countVariables++;
         }  
@@ -111,19 +120,24 @@ public class Visitor : GrammarBaseVisitor<object?>
         if (argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" &&
             (args is int || args is float))
         {
-            throw new Exception($"Invalid operands for concatenation");
+            //throw new Exception($"Invalid operands for concatenation");
+            WriteLineAndExit(
+                "Invalid operands for concatenation");
         }
 
         if (!DisplayFunctions.ContainsKey(funcName))
         {
-            throw new Exception($"Function {funcName} is not defined");
+            //throw new Exception($"Function {funcName} is not defined");
+            WriteLineAndExit(
+                $"Function {funcName} is not defined");
         }
 
         if (DisplayFunctions[funcName] is not Func<object?, object?> func)
         {
             throw new Exception($"{funcName} is not a function");
+
         }
-        
+
         return func(args);
     }
 
@@ -133,18 +147,24 @@ public class Visitor : GrammarBaseVisitor<object?>
         var args = context.scanvalue().Select(Visit).ToArray();
         
         if(args.Length == 0)
-            throw new Exception($"Scan has no input");
+            //throw new Exception($"Scan has no input");
+            WriteLineAndExit(
+                "Scan has no input");
         
         var argType = context.scanvalue(0).GetType().ToString();
         if (argType == "CODE_Interpreter.GrammarParser+ConstantExpressionContext" &&
             (args[0] is int || args[0] is float))
         {
-            throw new Exception($"Invalid operands for concatenation");
+            //throw new Exception($"Invalid operands for concatenation");
+            WriteLineAndExit(
+                "Invalid operands for concatenation");
         }
 
         if (!ScanFunctions.ContainsKey(funcName))
         {
-            throw new Exception($"Function {funcName} is not defined");
+            //throw new Exception($"Function {funcName} is not defined");
+            WriteLineAndExit(
+                $"Function {funcName} is not defined");
         }
 
         if (ScanFunctions[funcName] is not Func<object?[], object?> func)
@@ -177,7 +197,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
+                    //throw new Exception($"Invalid assignment for variable {varName}: expected to be CHAR");
+                    WriteLineAndExit(
+                        $"Invalid assignment for variable {varName}: expected to be CHAR");
                 }
             }
             else if (IntVar.ContainsKey(s))
@@ -188,7 +210,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
+                    //throw new Exception($"Invalid assignment for variable {varName} : expected to be INT");
+                    WriteLineAndExit(
+                        $"Invalid assignment for variable {varName} : expected to be INT");
                 }
             }
             else if (FloatVar.ContainsKey(s))
@@ -199,7 +223,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                 }
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
+                    //throw new Exception($"Invalid assignment for variable {varName}: expected to be FLOAT");
+                    WriteLineAndExit(
+                        $"Invalid assignment for variable {varName}: expected to be FLOAT");
                 }
             }
             else if (BoolVar.ContainsKey(s))
@@ -211,14 +237,18 @@ public class Visitor : GrammarBaseVisitor<object?>
 
                 else
                 {
-                    throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
+                    //throw new Exception($"Invalid assignment for variable {varName}: expected to be BOOL");
+                    WriteLineAndExit(
+                        $"Invalid assignment for variable {varName}: expected to be BOOL");
                 }
             }
             else
             {
                 var name = varName.Split('=');
                 var len = varName.Split('=').Length;
-                throw new Exception($"Variable {s} is not defined.");
+                //throw new Exception($"Variable {s} is not defined.");
+                WriteLineAndExit(
+                    $"Variable {s} is not defined.");
             }
         }
         return null;
@@ -256,7 +286,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                throw new Exception($"Value {value} is invalid");
+                                //throw new Exception($"Value {value} is invalid");
+                                WriteLineAndExit(
+                                    $"Value {value} is invalid");
                             }
                         }
                         else
@@ -267,7 +299,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                throw new Exception($"Value {value} is invalid");
+                                //throw new Exception($"Value {value} is invalid");
+                                WriteLineAndExit(
+                                    $"Value {value} is invalid");
                             }
                         }
                     }
@@ -298,11 +332,9 @@ public class Visitor : GrammarBaseVisitor<object?>
                             }
                             else
                             {
-                                Console.WriteLine(
+                                WriteLineAndExit(
                                     $"Invalid value for variable {varName}: expected to be {varDatatype}");
-
                             }
-
                             break;
                         }
                     }
@@ -351,8 +383,11 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return BoolVar[varName];
         }
-
-        throw new Exception($"Variable {varName} is not defined");
+        
+        //throw new Exception($"Variable {varName} is not defined");
+        WriteLineAndExit(
+            $"Variable {varName} is not defined");
+        return null;
     }
 
     public override object? VisitDisplayvariablenameExpression(GrammarParser.DisplayvariablenameExpressionContext context)
@@ -376,7 +411,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return BoolVar[varName];
         }
 
-        throw new Exception($"Variable {varName} is not defined");
+        //throw new Exception($"Variable {varName} is not defined");
+        WriteLineAndExit(
+            $"Variable {varName} is not defined");
+        return null;
     }
 
     public override object? VisitScanvariablenameExpression(GrammarParser.ScanvariablenameExpressionContext context)
@@ -406,7 +444,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return BoolVar[varName];
         }
 
-        throw new Exception($"Variable {varName} is not defined");
+        //throw new Exception($"Variable {varName} is not defined");
+        WriteLineAndExit(
+            $"Variable {varName} is not defined");
+        return null;
     }
 
     public override object? VisitValuevariablenameExpression(GrammarParser.ValuevariablenameExpressionContext context)
@@ -436,7 +477,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return BoolVar[varName];
         }
 
-        throw new Exception($"Variable {varName} is not defined");
+        //throw new Exception($"Variable {varName} is not defined");
+        WriteLineAndExit(
+            $"Variable {varName} is not defined");
+        return null;
     }
 
     public override object? VisitStringvalExpression(GrammarParser.StringvalExpressionContext context)
@@ -498,8 +542,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             //throw new Exception($"Invalid operands for concatenation: {(string.IsNullOrEmpty(left) ? "left" : "right")} operand is null or empty.");
             
         }
-
-        throw new Exception($"Invalid concatenation operator: '{op}'");
+        //throw new Exception($"Invalid concatenation operator: '{op}'");
+        WriteLineAndExit(
+            $"Invalid concatenation operator: '{op}'");
+        return null;
     }
     
     public override object? VisitAdditiveExpression(GrammarParser.AdditiveExpressionContext context)
@@ -509,12 +555,24 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.addOp().GetText();
 
+        /*
         return op switch
         {
             "+" => Add(left, right),
             "-" => Subtract(left, right),
             _ => throw new NotImplementedException()
         };
+        */
+        switch (op)
+        {
+            case "+":
+                return Add(left, right);
+            case "-":
+                return Subtract(left, right);
+            default:
+                WriteLineAndExit("Unsupported operator");
+                return null;
+        }
     }
 
     public override object? VisitAddExpression(GrammarParser.AddExpressionContext context)
@@ -523,13 +581,25 @@ public class Visitor : GrammarBaseVisitor<object?>
         var right = Visit(context.displayvalue(1));
 
         var op = context.addOp().GetText();
-
+        
+        /*
         return op switch
         {
             "+" => Add(left, right),
             "-" => Subtract(left, right),
             _ => throw new NotImplementedException()
         };
+        */
+        switch (op)
+        {
+            case "+":
+                return Add(left, right);
+            case "-":
+                return Subtract(left, right);
+            default:
+                WriteLineAndExit("Unsupported operator");
+                return null;
+        }
     }
 
     private object? Add(object? left, object? right)
@@ -543,8 +613,10 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return lf + rf;
         }
-
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        return null;
     }
     
     private object? Subtract(object? left, object? right)
@@ -558,8 +630,11 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return lf - rf;
         }
-
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        
+        //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        return null;
     }
 
     public override object? VisitMultiplicativeExpression(GrammarParser.MultiplicativeExpressionContext context)
@@ -568,7 +643,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         var right = Visit(context.value(1));
 
         var op = context.multOp().GetText();
-
+        /*
         return op switch
         {
             "*" => Multiply(left, right),
@@ -576,6 +651,19 @@ public class Visitor : GrammarBaseVisitor<object?>
             "%" => Modulo(left, right),
             _ => throw new NotImplementedException()
         };
+        */
+        switch (op)
+        {
+            case "*":
+                return Multiply(left, right);
+            case "/":
+                return Divide(left, right);
+            case "%":
+                return Modulo(left, right);
+            default:
+                WriteLineAndExit("Unsupported operator");
+                return null; 
+        }
     }
 
     public override object? VisitMultiExpression(GrammarParser.MultiExpressionContext context)
@@ -585,13 +673,25 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.multOp().GetText();
 
-        return op switch
+        /*return op switch
         {
             "*" => Multiply(left, right),
             "/" => Divide(left, right),
             "%" => Modulo(left, right),
             _ => throw new NotImplementedException()
-        };
+        };*/
+        switch (op)
+        {
+            case "*":
+                return Multiply(left, right);
+            case "/":
+                return Divide(left, right);
+            case "%":
+                return Modulo(left, right);
+            default:
+                WriteLineAndExit("Unsupported operator");
+                return null; 
+        }
     }
 
     private object? Multiply(object? left, object? right)
@@ -606,7 +706,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return lf * rf;
         }
 
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        return null;
     }
     
     private object? Divide(object? left, object? right)
@@ -620,8 +723,11 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return lf / rf;
         }
-
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        
+        //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        return null;
     }
     
     private object? Modulo(object? left, object? right)
@@ -635,8 +741,10 @@ public class Visitor : GrammarBaseVisitor<object?>
         {
             return lf % rf;
         }
-
-        throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        return null;
     }
 
     public override object? VisitLogicalOpExpression(GrammarParser.LogicalOpExpressionContext context)
@@ -645,13 +753,25 @@ public class Visitor : GrammarBaseVisitor<object?>
         var right = Visit(context.value(1));
 
         var op = context.logicalOp().GetText();
-
+        
+        /*
         return op switch
         {
             "AND" => And(left, right),
             "OR" => Or(left, right),
             _ => throw new NotImplementedException()
         };
+        */
+        switch (op)
+        {
+            case "AND":
+                return And(left, right);
+            case "OR":
+                return Or(left, right);
+            default:
+                WriteLineAndExit("Unsupported logical operator");
+                return null; 
+        }
     }
 
     public override object? VisitLogicExpression(GrammarParser.LogicExpressionContext context)
@@ -661,12 +781,22 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.logicalOp().GetText();
 
-        return op switch
+        /*return op switch
         {
             "AND" => And(left, right),
             "OR" => Or(left, right),
             _ => throw new NotImplementedException()
-        };
+        };*/
+        switch (op)
+        {
+            case "AND":
+                return And(left, right);
+            case "OR":
+                return Or(left, right);
+            default:
+                WriteLineAndExit("Unsupported logical operator");
+                return null; 
+        }
     }
 
     private string And(object? left, object? right)
@@ -682,8 +812,11 @@ public class Visitor : GrammarBaseVisitor<object?>
                 return "FALSE";
             }
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+
+        return null!;
     }
     
     private string Or(object? left, object? right)
@@ -699,8 +832,11 @@ public class Visitor : GrammarBaseVisitor<object?>
                 return "FALSE";
             }
         }
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
         
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
 
     public override object? VisitComparisonExpression(GrammarParser.ComparisonExpressionContext context)
@@ -710,7 +846,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.compareOp().GetText();
 
-        return op switch
+        /*return op switch
         {
             "==" => IsEquals(left, right),
             "<>" => NotEquals(left, right),
@@ -719,7 +855,25 @@ public class Visitor : GrammarBaseVisitor<object?>
             ">=" => GreaterThanOrEqual(left, right),
             "<=" => LessThanOrEqual(left, right),
             _ => throw new NotImplementedException()
-        };
+        };*/
+        switch (op)
+        {
+            case "==":
+                return IsEquals(left, right);
+            case "<>":
+                return NotEquals(left, right);
+            case ">":
+                return GreaterThan(left, right);
+            case "<":
+                return LessThan(left, right);
+            case ">=":
+                return GreaterThanOrEqual(left, right);
+            case "<=":
+                return LessThanOrEqual(left, right);
+            default:
+                WriteLineAndExit("Unsupported comparison operator");
+                return null; 
+        }
     }
 
     public override object? VisitCompExpression(GrammarParser.CompExpressionContext context)
@@ -729,7 +883,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         var op = context.compareOp().GetText();
 
-        return op switch
+        /*return op switch
         {
             "==" => IsEquals(left, right),
             "<>" => NotEquals(left, right),
@@ -738,7 +892,25 @@ public class Visitor : GrammarBaseVisitor<object?>
             ">=" => GreaterThanOrEqual(left, right),
             "<=" => LessThanOrEqual(left, right),
             _ => throw new NotImplementedException()
-        };
+        };*/
+        switch (op)
+        {
+            case "==":
+                return IsEquals(left, right);
+            case "<>":
+                return NotEquals(left, right);
+            case ">":
+                return GreaterThan(left, right);
+            case "<":
+                return LessThan(left, right);
+            case ">=":
+                return GreaterThanOrEqual(left, right);
+            case "<=":
+                return LessThanOrEqual(left, right);
+            default:
+                WriteLineAndExit("Unsupported comparison operator");
+                return null; 
+        }
     }
 
     private string IsEquals(object? left, object? right)
@@ -778,7 +950,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             
         }
         
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
     
     private string LessThan(object? left, object? right)
@@ -799,8 +974,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return "FALSE";
             
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
     
     private string GreaterThan(object? left, object? right)
@@ -821,8 +998,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return "FALSE";
             
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
     
     private string NotEquals(object? left, object? right)
@@ -859,8 +1038,10 @@ public class Visitor : GrammarBaseVisitor<object?>
 
             return "FALSE";
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
     
     private string LessThanOrEqual(object? left, object? right)
@@ -881,8 +1062,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return "FALSE";
             
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
     
     private string GreaterThanOrEqual(object? left, object? right)
@@ -903,8 +1086,10 @@ public class Visitor : GrammarBaseVisitor<object?>
             return "FALSE";
             
         }
-        
-        throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        //throw new NotImplementedException($"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        WriteLineAndExit(
+            $"Cannot compare values of types {left?.GetType()} and {right?.GetType()}");
+        return null!;
     }
 
     public override object? VisitNotExpression(GrammarParser.NotExpressionContext context)
@@ -914,7 +1099,10 @@ public class Visitor : GrammarBaseVisitor<object?>
         if(val is string b && (b == "TRUE" || b == "FALSE"))
             return Not(b);
         
-        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        //throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        WriteLineAndExit(
+            $"Bool value expected instead of {val?.GetType()}");
+        return null!;
     }
 
     public override object? VisitNoExpression(GrammarParser.NoExpressionContext context)
@@ -924,7 +1112,10 @@ public class Visitor : GrammarBaseVisitor<object?>
         if(val is string b && (b == "TRUE" || b == "FALSE"))
             return Not(b);
         
-        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        //throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        WriteLineAndExit(
+            $"Bool value expected instead of {val?.GetType()}");
+        return null!;
     }
 
     public string Not(object? val)
@@ -938,7 +1129,10 @@ public class Visitor : GrammarBaseVisitor<object?>
                 return "TRUE";
             }
         }
-        throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        //throw new NotImplementedException($"Bool value expected instead of {val?.GetType()}");
+        WriteLineAndExit(
+            $"Bool value expected instead of {val?.GetType()}");
+        return null!;
     }
 
     public override object? VisitParenthesizedExpression(GrammarParser.ParenthesizedExpressionContext context)
@@ -992,5 +1186,11 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitWhileBlock(GrammarParser.WhileBlockContext context)
     {
         return context.executes().Select(Visit).ToArray();
+    }
+    
+    static void WriteLineAndExit(string message)
+    {
+        Console.WriteLine(message);
+        Environment.Exit(0);
     }
 }
