@@ -17,7 +17,7 @@ statement: (vardec NEWLINE) | NEWLINE;
 
 exec: executes+;
 
-executes: ((assignment | scanCall | functionCall | ifCond | whileCond) NEWLINE) | NEWLINE;
+executes: ((assignment | scanCall | functionCall | ifCond | whileCond | doWhileCond) NEWLINE) | NEWLINE;
 
 // INT x or INT x, y
 vardec: DATATYPE declaratorlist;
@@ -53,6 +53,10 @@ whileBlock: 'BEGIN WHILE' NEWLINE* executes* 'END WHILE' NEWLINE*;
 
 // While Loop
 whileCond: 'WHILE' '(' value ')' NEWLINE* whileBlock;
+
+// Do While Loop
+doWhileCond: 'DO' NEWLINE* whileBlock NEWLINE+ '(' value ')';
+
 
 constant: CHARVAL | INTEGERVAL | FLOATVAL | BOOLVAL;
 variablename: VARIABLENAME;

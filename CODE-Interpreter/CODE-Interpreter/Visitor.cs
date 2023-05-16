@@ -1187,10 +1187,24 @@ public class Visitor : GrammarBaseVisitor<object?>
     {
         return context.executes().Select(Visit).ToArray();
     }
-    
+
     static void WriteLineAndExit(string message)
     {
         Console.WriteLine(message);
         Environment.Exit(0);
+    }
+
+    public override object? VisitDoWhileCond(GrammarParser.DoWhileCondContext context)
+    {
+        Visit(context.whileBlock());
+        var state = Visit(context.value());
+        
+        while(state is string b && b == "TRUE")
+        {
+            Visit(context.whileBlock());
+            state = Visit(context.value());
+        }
+        
+        return null;
     }
 }
