@@ -1,6 +1,16 @@
 BEGIN CODE
-    INT a=100, b=200, c=300 
-    BOOL d="FALSE" 
-    d = (a < b AND c <>200)
-    DISPLAY: d
+ CHAR c='a'
+ INT b = 1, z
+ SCAN: z
+ IF(c=='a')
+ BEGIN IF
+  WHILE(b<z)
+   BEGIN WHILE
+    IF((b%2) == 0)
+     BEGIN IF
+      DISPLAY: b
+     END IF
+     b = b + 1
+   END WHILE 
+ END IF
 END CODE

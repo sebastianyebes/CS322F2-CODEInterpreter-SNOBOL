@@ -19,7 +19,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
     private object? Display(object? args)
     {
-        Console.Write(args + "\n");
+        Console.Write(args);
 
         return null;
     }
@@ -1173,13 +1173,26 @@ public class Visitor : GrammarBaseVisitor<object?>
     public override object? VisitWhileCond(GrammarParser.WhileCondContext context)
     {
         var state = Visit(context.value());
-        
-        while(state is string b && b == "TRUE")
+
+        if (state is not string s && state != "\"FALSE\"" && state != "\"TRUE\"")
+        {
+            WriteLineAndExit(
+                $"Bool value expected instead of {state?.GetType()}");
+        }
+
+        var count = 0;
+        while (state is string b && b == "TRUE")
         {
             Visit(context.whileBlock());
             state = Visit(context.value());
+            count++;
+            if (count > 5000)
+            {
+                Console.Clear();
+                WriteLineAndExit(
+                    $"Infinite loop");
+            }
         }
-        
         return null;
     }
 
