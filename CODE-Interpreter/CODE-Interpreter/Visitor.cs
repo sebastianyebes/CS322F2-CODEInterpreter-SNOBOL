@@ -616,6 +616,7 @@ public class Visitor : GrammarBaseVisitor<object?>
         //throw new NotImplementedException($"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
         _helper.WriteLineAndExit(
             $"Cannot add values of types {left?.GetType()} and {right?.GetType()}");
+        
         return null;
     }
     
@@ -1176,7 +1177,7 @@ public class Visitor : GrammarBaseVisitor<object?>
 
         if (state is not string s && state != "\"FALSE\"" && state != "\"TRUE\"")
         {
-            WriteLineAndExit(
+            _helper.WriteLineAndExit(
                 $"Bool value expected instead of {state?.GetType()}");
         }
 
@@ -1189,8 +1190,7 @@ public class Visitor : GrammarBaseVisitor<object?>
             if (count > 5000)
             {
                 Console.Clear();
-                WriteLineAndExit(
-                    $"Infinite loop");
+                _helper.WriteLineAndExit( $"Infinite loop");
             }
         }
         return null;

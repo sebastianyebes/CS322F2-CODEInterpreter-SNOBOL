@@ -1,16 +1,5 @@
 BEGIN CODE
- CHAR c='a'
- INT b = 1, z
- SCAN: z
- IF(c=='a')
- BEGIN IF
-  WHILE(b<z)
-   BEGIN WHILE
-    IF((b%2) == 0)
-     BEGIN IF
-      DISPLAY: b
-     END IF
-     b = b + 1
-   END WHILE 
- END IF
+	CHAR a = 'a'
+	CHAR b = 'b'
+	DISPLAY: ab
 END CODE
